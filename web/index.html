@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080808">
+
+    <title>Cineva</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAfXYOK6euvJHY5jpbl3y0JYxw_OnjC2wc",
+  authDomain: "cineva-admin.firebaseapp.com",
+  projectId: "cineva-admin",
+  storageBucket: "cineva-admin.firebasestorage.app",
+  messagingSenderId: "496503778333",
+  appId: "1:496503778333:web:a216c2b5047ae6633baaf4",
+  measurementId: "G-3C0VFCRBDQ"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+</script>
+
+</head>
+
+<body>
+
+<!-- LOGIN SCREEN -->
+<section id="loginScreen" class="login-screen">
+    <div class="login-box">
+        <div class="login-logo">CINEVA</div>
+        <div class="login-subtitle">Movies • Series • Entertainment</div>
+
+        <button class="google-login" onclick="loginWithGoogle()">
+            Continue with Google
+        </button>
+
+        <div class="login-divider">
+            <span>OR</span>
+        </div>
+
+        <input id="loginEmail" type="email" placeholder="Email">
+        <input id="loginPassword" type="password" placeholder="Password">
+
+        <button class="login-button" onclick="loginWithEmail()">
+            Sign In
+        </button>
+
+        <button class="guest-button" onclick="continueAsGuest()">
+            Continue as Guest
+        </button>
+
+        <button class="signup-button" onclick="createAccount()">
+            Create Account
+        </button>
+
+        <button class="forgot-button" onclick="forgotPassword()">
+            Forgot password?
+        </button>
+    </div>
+</section>
+
+<header class="topbar" id="mainHeader">
+    <div class="logo">CINEVA</div>
+
+    <nav>
+        <button onclick="showPage('home')">⌂ Home</button>
+        <button onclick="showPage('movies')">Movies</button>
+        <button onclick="showPage('series')">Series</button>
+        <button onclick="showPage('mylist')">My List</button>
+    </nav>
+
+    <div class="actions">
+        <button onclick="searchMovies()">⌕</button>
+        <button type="button" id="cinevaSettingsIcon" onclick="openCinevaSettings()" aria-label="Settings">⚙</button>
+    </div>
+</header>
+
+
+<main id="app" style="display:none;">
+
+<!-- CINEVA SETTINGS -->
+<section id="settings" class="page">
+    <div class="settings-page">
+
+        <div class="settings-title">
+            <button type="button" id="cinevaSettingsBack">‹</button>
+            <h2>Settings</h2>
+        </div>
+
+        <div class="settings-section">
+            <h3>Account</h3>
+
+            <button class="settings-row" type="button" data-setting="profile">
+                <span>👤 Profile</span><span>›</span>
+            </button>
+
+            <button class="settings-row" type="button" data-setting="subscription">
+                <span>💳 Subscription</span><span>›</span>
+            </button>
+
+            <button class="settings-row" type="button" data-setting="coins">
+                <span>🪙 Coins & Daily Tasks</span><span>›</span>
+            </button>
+        </div>
+
+        <div class="settings-section">
+            <h3>App Settings</h3>
+
+            <button class="settings-row" type="button" data-setting="language">
+                <span>🌐 Language</span>
+                <span id="cinevaLanguageValue">English ›</span>
+            </button>
+
+            <button class="settings-row" type="button" data-setting="quality">
+                <span>🎥 Video Quality</span><span>›</span>
+            </button>
+
+            <button class="settings-row" type="button" data-setting="downloads">
+                <span>⬇ Downloads</span><span>›</span>
+            </button>
+        </div>
+
+        <div class="settings-section">
+            <h3>Support</h3>
+
+            <button class="settings-row" type="button" data-setting="parental">
+                <span>🔒 Parental Controls</span><span>›</span>
+            </button>
+
+            <button class="settings-row" type="button" data-setting="help">
+                <span>❓ Help & Support</span><span>›</span>
+            </button>
+        </div>
+
+        <div class="settings-section">
+            <h3>About Cineva</h3>
+
+            <button class="settings-row" type="button" data-setting="privacy">
+                <span>🛡 Privacy</span><span>›</span>
+            </button>
+
+            <button class="settings-row" type="button" data-setting="terms">
+                <span>📄 Terms</span><span>›</span>
+            </button>
+        </div>
+
+        <button class="cineva-logout" type="button" id="cinevaLogoutButton">
+            Log Out
+        </button>
+
+    </div>
+</section>
+
+<!-- HOME -->
+<section id="home" class="page active">
+    <div id="cinevaHome">
+        <div class="cineva-home-loading">
+            <div class="cineva-spinner"></div>
+            <p>Loading...</p>
+        </div>
+    </div>
+</section>
+
+<!-- MOVIES -->
+<!-- MOVIES -->
+    <section id="movies" class="page">
+        <div id="firebaseMoviesContainer" class="grid"></div>
+    </section>
+
+
+    <!-- SERIES -->
+    <section id="series" class="page">
+        <div id="firebaseSeriesContainer" class="grid"></div>
+    </section>
+
+
+    <!-- MY LIST -->
+    <section id="mylist" class="page">
+        <div class="page-title">
+            <h1>My List</h1>
+            <p>Movies and series you saved</p>
+        </div>
+
+        <div class="empty">
+            <div>＋</div>
+            <h2>Your list is empty</h2>
+            <p>Add movies and series to watch later.</p>
+        </div>
+    </section>
+
+
+    <!-- VIDEO PLAYER -->
+<div id="player" class="player hidden">
+
+    <div class="player-top">
+        <button onclick="closePlayer()">‹</button>
+        <span id="playerTitle">Cineva</span>
+        <span class="quality">HD</span>
+    </div>
+
+    <div class="video-area">
+
+        <div class="center-controls">
+
+            <button onclick="skip(-10)">↶</button>
+
+            <button class="play-button" onclick="togglePlay()">
+                ▶
+            </button>
+
+            <button onclick="skip(10)">↷</button>
+
+        </div>
+
+    </div>
+
+    <div class="timeline">
+        <span>00:15</span>
+
+        <input type="range" min="0" max="100" value="25">
+
+        <span>1:05:20</span>
+    </div>
+
+    <div class="player-bottom">
+
+        <button onclick="togglePlay()">▶</button>
+
+        <button>Next Episode</button>
+
+        <button>1×</button>
+
+        <div class="player-options">
+            <button>Fit</button>
+            <button>CC</button>
+            <button>Audio</button>
+            <button>1×</button>
+            <button>1080p</button>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,1115 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: #080808;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+}
+
+button,
+select,
+input {
+    font: inherit;
+}
+
+button {
+    border: 0;
+    color: #fff;
+    background: none;
+    cursor: pointer;
+}
+
+/* =========================
+   TOP BAR
+========================= */
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    padding: 0 4%;
+    background: rgba(8, 8, 8, .96);
+    border-bottom: 1px solid #191919;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-right: 40px;
+}
+
+.topbar nav {
+    display: flex;
+    gap: 25px;
+}
+
+.topbar nav button {
+    color: #aaa;
+    font-size: 14px;
+}
+
+.topbar nav button:hover {
+    color: #fff;
+}
+
+.actions {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
+
+.actions button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 22px;
+}
+
+/* =========================
+   PAGES
+========================= */
+
+.page {
+    display: none;
+    min-height: calc(100vh - 64px);
+}
+
+.page.active {
+    display: block;
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+    min-height: 580px;
+    display: flex;
+    align-items: flex-end;
+    padding: 7%;
+    position: relative;
+    overflow: hidden;
+    background:
+        linear-gradient(90deg, #080808 0%, rgba(8,8,8,.82) 35%, rgba(8,8,8,.15) 100%),
+        linear-gradient(0deg, #080808 0%, transparent 55%),
+        radial-gradient(circle at 70% 35%, #333 0%, #151515 30%, #080808 70%);
+}
+
+.hero-content {
+    max-width: 620px;
+    position: relative;
+    z-index: 2;
+}
+
+.badge {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    font-weight: bold;
+    padding: 6px 10px;
+    border-radius: 4px;
+    background: #fff;
+    color: #000;
+}
+
+.hero h1 {
+    font-size: clamp(40px, 6vw, 76px);
+    line-height: .98;
+    margin: 18px 0;
+}
+
+.hero p {
+    color: #c5c5c5;
+    font-size: 17px;
+    line-height: 1.6;
+    max-width: 500px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.primary,
+.secondary {
+    padding: 13px 24px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.primary {
+    background: #fff;
+    color: #000;
+}
+
+.secondary {
+    background: rgba(80,80,80,.75);
+}
+
+/* =========================
+   CONTENT ROWS
+========================= */
+
+.row {
+    padding: 20px 4%;
+}
+
+.row h2 {
+    font-size: 21px;
+    margin: 0 0 15px;
+}
+
+.cards {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.cards::-webkit-scrollbar {
+    height: 5px;
+}
+
+.cards::-webkit-scrollbar-thumb {
+    background: #333;
+}
+
+/* =========================
+   MOVIE CARDS
+========================= */
+
+.movie-card,
+.card {
+    flex: 0 0 190px;
+}
+
+.poster {
+    height: 270px;
+    border-radius: 7px;
+    background:
+        linear-gradient(135deg, #282828, #111);
+    position: relative;
+    overflow: hidden;
+}
+
+.poster::after {
+    content: "CINEVA";
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    opacity: .45;
+}
+
+.poster1 {
+    background: linear-gradient(145deg, #313131, #101010);
+}
+
+.poster2 {
+    background: linear-gradient(145deg, #424242, #111);
+}
+
+.poster3 {
+    background: linear-gradient(145deg, #202020, #555);
+}
+
+.poster4 {
+    background: linear-gradient(145deg, #444, #151515);
+}
+
+.poster5 {
+    background: linear-gradient(145deg, #151515, #3b3b3b);
+}
+
+.poster6 {
+    background: linear-gradient(145deg, #555, #191919);
+}
+
+.poster7 {
+    background: linear-gradient(145deg, #292929, #080808);
+}
+
+.poster8 {
+    background: linear-gradient(145deg, #3a3a3a, #0d0d0d);
+}
+
+.movie-card b,
+.card-info b {
+    display: block;
+    margin-top: 9px;
+    font-size: 14px;
+}
+
+.movie-card small,
+.card-info small {
+    display: block;
+    margin-top: 5px;
+    color: #888;
+    font-size: 12px;
+}
+
+/* =========================
+   CONTINUE WATCHING
+========================= */
+
+.card {
+    flex-basis: 310px;
+}
+
+.card .poster {
+    height: 175px;
+}
+
+.progress {
+    height: 3px;
+    background: #333;
+    margin-top: 9px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress span {
+    display: block;
+    height: 100%;
+    background: #fff;
+}
+
+/* =========================
+   PAGE TITLE
+========================= */
+
+.page-title {
+    padding: 55px 5% 30px;
+}
+
+.page-title h1 {
+    font-size: 38px;
+    margin: 0 0 8px;
+}
+
+.page-title p {
+    color: #888;
+}
+
+/* =========================
+   GRID
+========================= */
+
+.grid {
+    padding: 0 5% 50px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 25px 17px;
+}
+
+.grid .movie-card {
+    width: 100%;
+}
+
+/* =========================
+   SERIES
+========================= */
+
+.series-details {
+    margin: 0 5% 50px;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 35px;
+    align-items: start;
+}
+
+.large-poster {
+    height: 420px;
+    border-radius: 8px;
+}
+
+.series-details h1 {
+    font-size: 42px;
+}
+
+.series-details p {
+    color: #aaa;
+    line-height: 1.6;
+    max-width: 600px;
+}
+
+.series-details label {
+    display: block;
+    color: #888;
+    font-size: 13px;
+    margin-top: 25px;
+    margin-bottom: 7px;
+}
+
+.series-details select {
+    background: #181818;
+    color: #fff;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 12px 15px;
+}
+
+.episodes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.episodes button {
+    background: #1b1b1b;
+    padding: 11px 15px;
+    border-radius: 5px;
+}
+
+/* =========================
+   MY LIST
+========================= */
+
+.empty {
+    text-align: center;
+    padding: 100px 20px;
+    color: #888;
+}
+
+.empty div {
+    font-size: 50px;
+    color: #555;
+}
+
+.empty h2 {
+    color: #ddd;
+}
+
+/* =========================
+   SETTINGS
+========================= */
+
+.settings {
+    max-width: 700px;
+    margin: 0 5% 50px;
+}
+
+.settings button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 19px;
+    margin: 5px 0;
+    background: #141414;
+    border-radius: 6px;
+    color: #ccc;
+}
+
+/* =========================
+   VIDEO PLAYER
+========================= */
+
+.player {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+}
+
+.player.hidden {
+    display: none;
+}
+
+.player-top {
+    height: 58px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 0 18px;
+    background: linear-gradient(#000, transparent);
+}
+
+.player-top button {
+    font-size: 35px;
+}
+
+.player-top span:nth-child(2) {
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.quality {
+    margin-left: auto;
+    border: 1px solid #777;
+    padding: 3px 7px;
+    font-size: 10px;
+    border-radius: 3px;
+}
+
+.video-area {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+}
+
+.center-controls {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+}
+
+.center-controls button {
+    font-size: 35px;
+}
+
+.center-controls .play-button {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.95);
+    color: #000;
+    font-size: 27px;
+}
+
+/* =========================
+   TIMELINE
+========================= */
+
+.timeline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px 8px;
+    font-size: 11px;
+    color: #aaa;
+}
+
+.timeline input {
+    flex: 1;
+    accent-color: #fff;
+}
+
+/* =========================
+   PLAYER BOTTOM
+========================= */
+
+.player-bottom {
+    min-height: 65px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 0 20px 15px;
+}
+
+.player-bottom button {
+    padding: 9px 12px;
+    border-radius: 4px;
+    background: #151515;
+    font-size: 12px;
+}
+
+.player-options {
+    margin-left: auto;
+    display: flex;
+    gap: 7px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+
+    .topbar {
+        height: 58px;
+        padding: 0 15px;
+    }
+
+    .logo {
+        font-size: 20px;
+        margin-right: 18px;
+    }
+
+    .topbar nav {
+        gap: 12px;
+    }
+
+    .topbar nav button {
+        font-size: 11px;
+    }
+
+    .actions button {
+        width: 32px;
+        height: 32px;
+    }
+
+    .hero {
+        min-height: 500px;
+        padding: 25px 20px;
+    }
+
+    .hero h1 {
+        font-size: 42px;
+    }
+
+    .hero p {
+        font-size: 14px;
+    }
+
+    .row {
+        padding: 15px;
+    }
+
+    .movie-card {
+        flex-basis: 145px;
+    }
+
+    .movie-card .poster {
+        height: 210px;
+    }
+
+    .card {
+        flex-basis: 260px;
+    }
+
+    .card .poster {
+        height: 145px;
+    }
+
+    .grid {
+        padding: 0 15px 35px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px 10px;
+    }
+
+    .series-details {
+        margin: 0 15px 35px;
+        grid-template-columns: 1fr;
+    }
+
+    .large-poster {
+        height: 430px;
+        max-width: 290px;
+    }
+
+    .series-details h1 {
+        font-size: 30px;
+    }
+
+    .page-title {
+        padding: 35px 15px 20px;
+    }
+
+    .player-top {
+        height: 50px;
+    }
+
+    .video-area {
+        aspect-ratio: 16 / 9;
+        flex: none;
+        width: 100%;
+    }
+
+    .center-controls {
+        gap: 25px;
+    }
+
+    .center-controls button {
+        font-size: 27px;
+    }
+
+    .center-controls .play-button {
+        width: 58px;
+        height: 58px;
+    }
+
+    .player-bottom {
+        flex-wrap: wrap;
+        padding: 8px 12px 15px;
+    }
+
+    .player-options {
+        width: 100%;
+        margin-left: 0;
+        overflow-x: auto;
+    }
+
+    .player-options button {
+        white-space: nowrap;
+    }
+}
+
+/* =========================
+   PC CINEMATIC PLAYER
+========================= */
+
+@media (min-width: 900px) {
+
+    .video-area {
+        margin: 0 auto;
+        width: min(90vw, 1500px);
+        aspect-ratio: 16 / 9;
+        flex: none;
+        max-height: calc(100vh - 160px);
+    }
+}
+
+/* =========================
+   CINEVA LOGIN
+   ========================= */
+
+.login-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #080808;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-box {
+    width: min(420px, 100%);
+    padding: 32px 26px;
+    background: #151515;
+    border-radius: 14px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.login-logo {
+    font-size: 34px;
+    font-weight: 900;
+    letter-spacing: 5px;
+    color: #ffffff;
+    margin-bottom: 8px;
+}
+
+.login-subtitle {
+    color: #999;
+    font-size: 14px;
+    margin-bottom: 28px;
+}
+
+.login-box input {
+    width: 100%;
+    height: 48px;
+    box-sizing: border-box;
+    margin-bottom: 12px;
+    padding: 0 14px;
+    border: 1px solid #333;
+    border-radius: 7px;
+    background: #0d0d0d;
+    color: #fff;
+    outline: none;
+}
+
+.google-login,
+.login-button,
+.guest-button,
+.signup-button {
+    width: 100%;
+    height: 48px;
+    border: 0;
+    border-radius: 7px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.google-login {
+    background: #fff;
+    color: #111;
+}
+
+.login-button {
+    background: #e50914;
+    color: #fff;
+}
+
+.guest-button {
+    background: #292929;
+    color: #fff;
+}
+
+.signup-button {
+    background: transparent;
+    color: #fff;
+}
+
+.forgot-button {
+    border: 0;
+    background: transparent;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.login-divider {
+    color: #666;
+    font-size: 12px;
+    margin: 18px 0;
+}
+
+.login-divider span {
+    padding: 0 10px;
+}
+
+@media (max-width: 600px) {
+    .login-box {
+        padding: 28px 20px;
+    }
+
+    .login-logo {
+        font-size: 30px;
+    }
+}
+
+/* =========================================
+   CINEVA SETTINGS
+   ========================================= */
+
+.settings-page {
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 25px 18px 60px;
+}
+
+.settings-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.settings-title button {
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 50%;
+    background: #222;
+    color: #fff;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.settings-title h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 22px;
+}
+
+.settings-section {
+    margin-bottom: 25px;
+}
+
+.settings-section h3 {
+    color: #fff;
+    font-size: 15px;
+    margin: 0 0 9px;
+}
+
+.settings-row {
+    width: 100%;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    padding: 0 15px;
+    margin-bottom: 4px;
+    border: 0;
+    border-radius: 8px;
+    background: #171717;
+    color: #ddd;
+    cursor: pointer;
+    text-align: left;
+    font-size: 14px;
+}
+
+.settings-row:hover {
+    background: #222;
+}
+
+.cineva-logout {
+    width: 100%;
+    height: 52px;
+    border: 0;
+    border-radius: 8px;
+    background: #222;
+    color: #ff5555;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+.cineva-logout:hover {
+    background: #2b2b2b;
+}
+
+/* =========================================
+   CINEVA SETTINGS DETAIL PAGES
+   ========================================= */
+
+.dynamic-settings {
+    max-width: 850px;
+    margin: auto;
+    padding: 24px 18px 60px;
+}
+
+.dynamic-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.dynamic-header button {
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 50%;
+    background: #222;
+    color: white;
+    font-size: 28px;
+}
+
+.dynamic-header h2 {
+    color: white;
+    margin: 0;
+    font-size: 22px;
+}
+
+.profile-card,
+.subscription-card,
+.coin-big,
+.setting-card,
+.task-card,
+.help-card,
+.legal-card,
+.empty-state {
+    background: #171717;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 12px;
+    color: #ddd;
+}
+
+.profile-card {
+    text-align: center;
+}
+
+.profile-avatar {
+    width: 75px;
+    height: 75px;
+    margin: auto;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2a2a2a;
+    color: white;
+    font-size: 32px;
+    font-weight: 800;
+}
+
+.profile-card h2 {
+    color: white;
+    margin-bottom: 5px;
+}
+
+.profile-card p,
+.subscription-card p,
+.setting-card p,
+.task-card p,
+.legal-card p,
+.empty-state p {
+    color: #999;
+}
+
+.setting-card input {
+    width: 100%;
+    height: 46px;
+    box-sizing: border-box;
+    background: #0c0c0c;
+    border: 1px solid #333;
+    border-radius: 7px;
+    color: white;
+    padding: 0 12px;
+    margin: 10px 0;
+}
+
+.setting-card button,
+.task-card button {
+    background: #e50914;
+    color: white;
+    border: 0;
+    border-radius: 7px;
+    padding: 11px 18px;
+    font-weight: 700;
+}
+
+.coin-big {
+    text-align: center;
+}
+
+.coin-big span {
+    font-size: 35px;
+}
+
+.coin-big strong {
+    display: block;
+    color: white;
+    font-size: 35px;
+}
+
+.coin-big small {
+    color: #999;
+}
+
+.task-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.task-card strong {
+    color: white;
+}
+
+.language-list,
+.quality-list {
+    display: grid;
+    gap: 5px;
+}
+
+.language-list button,
+.quality-list button,
+.help-card button {
+    width: 100%;
+    min-height: 54px;
+    border: 0;
+    border-radius: 8px;
+    background: #171717;
+    color: #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    font-size: 14px;
+    text-align: left;
+}
+
+.quality-list small {
+    color: #888;
+}
+
+.help-card button {
+    margin-top: 6px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 55px 25px;
+}
+
+.empty-icon {
+    font-size: 42px;
+    color: #888;
+}
+
+.legal-card {
+    line-height: 1.7;
+}
+
+.switch-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    padding-top: 15px;
+}
+
+.switch-row input {
+    width: 22px;
+    height: 22px;
+}
+
+/* CINEVA SEARCH TOP FIX */
+
+#cinevaSearchBox {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: rgba(8,8,8,.98);
+    border-bottom: 1px solid #222;
+    padding: 12px 4%;
+}
+
+.cineva-search-panel {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.cineva-search-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cineva-search-top input {
+    flex: 1;
+    height: 46px;
+    padding: 0 16px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    outline: none;
+    background: #151515;
+    color: #fff;
+}
+
+#cinevaSearchResults {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-top: 15px;
+}
+
+.search-empty {
+    padding: 28px 10px;
+    text-align: center;
+    color: #aaa;
+}
+
+.cineva-logout {
+    width: 100%;
+    margin-top: 18px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #1b1b1b;
+    color: #fff;
+    font-weight: 700;
+}
+

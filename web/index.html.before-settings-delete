@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080808">
+
+    <title>Cineva</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAfXYOK6euvJHY5jpbl3y0JYxw_OnjC2wc",
+  authDomain: "cineva-admin.firebaseapp.com",
+  projectId: "cineva-admin",
+  storageBucket: "cineva-admin.firebasestorage.app",
+  messagingSenderId: "496503778333",
+  appId: "1:496503778333:web:a216c2b5047ae6633baaf4",
+  measurementId: "G-3C0VFCRBDQ"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+</script>
+
+</head>
+
+<body>
+
+<!-- LOGIN SCREEN -->
+<section id="loginScreen" class="login-screen">
+    <div class="login-box">
+        <div class="login-logo">CINEVA</div>
+        <div class="login-subtitle">Movies • Series • Entertainment</div>
+
+        <button class="google-login" onclick="loginWithGoogle()">
+            Continue with Google
+        </button>
+
+        <div class="login-divider">
+            <span>OR</span>
+        </div>
+
+        <input id="loginEmail" type="email" placeholder="Email">
+        <input id="loginPassword" type="password" placeholder="Password">
+
+        <button class="login-button" onclick="loginWithEmail()">
+            Sign In
+        </button>
+
+        <button class="guest-button" onclick="continueAsGuest()">
+            Continue as Guest
+        </button>
+
+        <button class="signup-button" onclick="createAccount()">
+            Create Account
+        </button>
+
+        <button class="forgot-button" onclick="forgotPassword()">
+            Forgot password?
+        </button>
+    </div>
+</section>
+
+<header class="topbar" id="mainHeader">
+    <div class="logo">CINEVA</div>
+
+    <nav>
+        <button onclick="showPage('home')">Home</button>
+        <button onclick="showPage('movies')">Movies</button>
+        <button onclick="showPage('series')">Series</button>
+        <button onclick="showPage('mylist')">My List</button>
+    </nav>
+
+    <div class="actions">
+        <button onclick="searchMovies()">⌕</button>
+        <button onclick="showPage('profile')">◯</button>
+    </div>
+</header>
+
+
+<main id="app" style="display:none;">
+<!-- CINEVA SETTINGS -->
+<section id="settings" class="page">
+    <div class="settings-page">
+
+        <div class="settings-title">
+            <button type="button" onclick="showPage('home')">‹</button>
+            <h2>CINEVA Settings</h2>
+        </div>
+
+        <div class="settings-section">
+            <h3>Account</h3>
+
+            <button class="settings-row" type="button" onclick="openProfile()">
+                <span>Profile</span>
+                <span>›</span>
+            </button>
+
+            <button class="settings-row" type="button" onclick="openSubscription()">
+                <span>Subscription</span>
+                <span>›</span>
+            </button>
+
+            <button class="settings-row" type="button" onclick="openCoins()">
+                <span>Coins & Daily Tasks</span>
+                <span>›</span>
+            </button>
+        </div>
+
+        <div class="settings-section">
+            <h3>App Settings</h3>
+
+            <button class="settings-row" type="button" onclick="changeLanguage()">
+                <span>Language</span>
+                <span>English ›</span>
+            </button>
+
+            <button class="settings-row" type="button" onclick="openVideoQuality()">
+                <span>Video Quality</span>
+                <span>›</span>
+            </button>
+
+            <button class="settings-row" type="button" onclick="openDownloads()">
+                <span>Downloads</span>
+                <span>›</span>
+            </button>
+        </div>
+
+        <div class="settings-section">
+            <h3>Support</h3>
+
+            <button class="settings-row" type="button" onclick="openParentalControls()">
+                <span>Parental Controls</span>
+                <span>›</span>
+            </button>
+
+            <button class="settings-row" type="button" onclick="openHelp()">
+                <span>Help & Support</span>
+                <span>›</span>
+            </button>
+        </div>
+
+        <div class="settings-section">
+            <h3>About Cineva</h3>
+
+            <button class="settings-row" type="button" onclick="openPrivacy()">
+                <span>Privacy</span>
+                <span>›</span>
+            </button>
+
+            <button class="settings-row" type="button" onclick="openTerms()">
+                <span>Terms</span>
+                <span>›</span>
+            </button>
+        </div>
+
+        <button class="cineva-logout" type="button" onclick="logoutCineva()">
+            Log Out
+        </button>
+
+    </div>
+</section>
+
+
+    <!-- HOME -->
+    <section id="home" class="page active">
+
+        <div class="hero">
+            <div class="hero-content">
+                <span class="badge">CINEVA ORIGINAL</span>
+
+                <h1>Watch Something<br>Great Tonight</h1>
+
+                <p>
+                    Movies, series and entertainment —
+                    all in one place.
+                </p>
+
+                <div class="hero-buttons">
+                    <button class="primary" onclick="playDemo()">
+                        ▶ Play
+                    </button>
+
+                    <button class="secondary" onclick="showDetails()">
+                        ⓘ More Info
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <section class="row">
+            <h2>Continue Watching</h2>
+
+            <div class="cards">
+
+                <article class="card">
+                    <div class="poster poster1"></div>
+                    <div class="card-info">
+                        <b>One Piece</b>
+                        <small>S01 E01 • 25 min left</small>
+                        <div class="progress">
+                            <span style="width:62%"></span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="poster poster2"></div>
+                    <div class="card-info">
+                        <b>Movie Night</b>
+                        <small>42 min left</small>
+                        <div class="progress">
+                            <span style="width:38%"></span>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+
+
+        <section class="row">
+            <h2>Popular Movies</h2>
+
+            <div class="cards">
+
+                <article class="movie-card" onclick="showDetails()">
+                    <div class="poster poster3"></div>
+                    <b>Featured Movie</b>
+                    <small>2026 • Hindi</small>
+                </article>
+
+                <article class="movie-card">
+                    <div class="poster poster4"></div>
+                    <b>Action Night</b>
+                    <small>2026 • English</small>
+                </article>
+
+                <article class="movie-card">
+                    <div class="poster poster5"></div>
+                    <b>Dark World</b>
+                    <small>2026 • Hindi</small>
+                </article>
+
+                <article class="movie-card">
+                    <div class="poster poster6"></div>
+                    <b>Adventure</b>
+                    <small>2026 • Multi Audio</small>
+                </article>
+
+            </div>
+        </section>
+
+
+        <section class="row">
+            <h2>Popular Series</h2>
+
+            <div class="cards">
+
+                <article class="movie-card" onclick="openSeries()">
+                    <div class="poster poster7"></div>
+                    <b>One Piece</b>
+                    <small>Season 1 • 10 Episodes</small>
+                </article>
+
+                <article class="movie-card">
+                    <div class="poster poster8"></div>
+                    <b>Cineva Stories</b>
+                    <small>Season 2</small>
+                </article>
+
+            </div>
+        </section>
+
+    </section>
+
+
+    <!-- MOVIES -->
+    <section id="movies" class="page">
+        <div class="page-title">
+            <h1>Movies</h1>
+            <p>Browse movies on Cineva</p>
+        </div>
+
+        <div class="grid">
+            <article class="movie-card">
+                <div class="poster poster3"></div>
+                <b>Featured Movie</b>
+                <small>Hindi • 2026</small>
+            </article>
+
+            <article class="movie-card">
+                <div class="poster poster4"></div>
+                <b>Action Night</b>
+                <small>English • 2026</small>
+            </article>
+
+            <article class="movie-card">
+                <div class="poster poster5"></div>
+                <b>Dark World</b>
+                <small>Hindi • 2026</small>
+            </article>
+        </div>
+    </section>
+
+
+    <!-- SERIES -->
+    <section id="series" class="page">
+        <div class="page-title">
+            <h1>Series</h1>
+            <p>Seasons and episodes</p>
+        </div>
+
+        <article class="series-details">
+
+            <div class="large-poster poster7"></div>
+
+            <div>
+                <span class="badge">SERIES</span>
+                <h1>One Piece</h1>
+
+                <p>
+                    Adventure series with multiple seasons
+                    and episodes.
+                </p>
+
+                <label>Season</label>
+
+                <select>
+                    <option>Season 1</option>
+                    <option>Season 2</option>
+                    <option>Season 3</option>
+                </select>
+
+                <div class="episodes">
+                    <button>Episode 1</button>
+                    <button>Episode 2</button>
+                    <button>Episode 3</button>
+                </div>
+            </div>
+
+        </article>
+    </section>
+
+
+    <!-- MY LIST -->
+    <section id="mylist" class="page">
+        <div class="page-title">
+            <h1>My List</h1>
+            <p>Movies and series you saved</p>
+        </div>
+
+        <div class="empty">
+            <div>＋</div>
+            <h2>Your list is empty</h2>
+            <p>Add movies and series to watch later.</p>
+        </div>
+    </section>
+
+
+    <!-- PROFILE -->
+    <section id="profile" class="page">
+        <div class="page-title">
+            <h1>Account</h1>
+            <p>Cineva account and settings</p>
+        </div>
+
+        <div class="settings">
+
+            <button>Profile</button>
+            <button>Language</button>
+            <button>Video Quality</button>
+            <button>Downloads</button>
+            <button>Help & Support</button>
+            <button>Privacy</button>
+
+        </div>
+    </section>
+
+</main>
+
+
+<!-- VIDEO PLAYER -->
+<div id="player" class="player hidden">
+
+    <div class="player-top">
+        <button onclick="closePlayer()">‹</button>
+        <span id="playerTitle">Cineva</span>
+        <span class="quality">HD</span>
+    </div>
+
+    <div class="video-area">
+
+        <div class="center-controls">
+
+            <button onclick="skip(-10)">↶</button>
+
+            <button class="play-button" onclick="togglePlay()">
+                ▶
+            </button>
+
+            <button onclick="skip(10)">↷</button>
+
+        </div>
+
+    </div>
+
+    <div class="timeline">
+        <span>00:15</span>
+
+        <input type="range" min="0" max="100" value="25">
+
+        <span>1:05:20</span>
+    </div>
+
+    <div class="player-bottom">
+
+        <button onclick="togglePlay()">▶</button>
+
+        <button>Next Episode</button>
+
+        <button>1×</button>
+
+        <div class="player-options">
+            <button>Fit</button>
+            <button>CC</button>
+            <button>Audio</button>
+            <button>1×</button>
+            <button>1080p</button>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>

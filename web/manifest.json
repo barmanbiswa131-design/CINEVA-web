@@ -1,0 +1,11 @@
+{
+    "name": "Cineva",
+    "short_name": "Cineva",
+    "description": "Cineva Movies & Series",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#080808",
+    "theme_color": "#080808",
+    "orientation": "any",
+    "icons": []
+}
