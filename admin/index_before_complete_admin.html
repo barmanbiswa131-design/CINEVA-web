@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CINEVA Admin</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#080b11;color:#fff;
+ font-family:Arial,sans-serif
+}
+button{
+ border:0;border-radius:10px;padding:11px 15px;
+ background:#168cff;color:#fff;font-weight:bold;
+ cursor:pointer
+}
+button:hover{opacity:.9}
+button.gray{background:#252c38}
+button.danger{background:#d93636}
+header{
+ height:68px;padding:0 18px;display:flex;
+ align-items:center;justify-content:space-between;
+ background:#0d1119;border-bottom:1px solid #202938;
+ position:sticky;top:0;z-index:20
+}
+.logo{font-size:27px;font-weight:bold;color:#29a9ff}
+main{max-width:1150px;margin:auto;padding:18px}
+.card{
+ background:#101620;border:1px solid #202938;
+ border-radius:16px;padding:18px;margin-bottom:18px
+}
+h2{margin:0 0 15px}
+h3{margin:0 0 8px}
+input,textarea,select{
+ width:100%;padding:13px;margin:6px 0 12px;
+ border-radius:10px;border:1px solid #303b4d;
+ background:#0b1018;color:#fff;font-size:15px
+}
+textarea{min-height:100px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid{
+ display:grid;grid-template-columns:repeat(4,1fr);
+ gap:12px
+}
+.stat{
+ background:#151d29;border:1px solid #263142;
+ border-radius:14px;padding:17px
+}
+.stat b{display:block;font-size:27px;margin-top:5px}
+.nav{
+ display:flex;gap:8px;overflow:auto;
+ padding-bottom:15px;margin-bottom:5px
+}
+.nav button{white-space:nowrap}
+.section{display:none}
+.section.active{display:block}
+.movie{
+ display:flex;gap:14px;padding:13px 0;
+ border-bottom:1px solid #252d39;align-items:center
+}
+.movie img{
+ width:65px;height:90px;object-fit:cover;
+ border-radius:8px;background:#202631
+}
+.movieInfo{flex:1}
+.movieTitle{font-size:17px;font-weight:bold}
+.small{color:#8e9aaa;font-size:13px;margin-top:5px}
+.actions{display:flex;gap:7px;flex-wrap:wrap}
+.check{
+ display:flex;align-items:center;gap:8px;margin:5px 0 15px
+}
+.check input{width:auto;margin:0}
+.badge{
+ display:inline-block;padding:4px 8px;border-radius:8px;
+ background:#20364b;color:#55bdff;font-size:11px;margin:3px
+}
+.message{margin:10px 0}
+.error{color:#ff7373}
+.success{color:#55e68a}
+#panel{display:none}
+#login{
+ max-width:430px;margin:70px auto
+}
+.empty{color:#8e9aaa;padding:20px 0}
+@media(max-width:800px){
+ .grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+ .row{grid-template-columns:1fr}
+ .grid{grid-template-columns:1fr 1fr}
+ .movie{align-items:flex-start}
+ .movie .actions{flex-direction:column}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div class="logo">CINEVA</div>
+ <button id="logout" class="gray" style="display:none">Logout</button>
+</header>
+
+<div id="login" class="card">
+ <h2>Admin Login</h2>
+
+ <input id="email" type="email" placeholder="Admin email">
+ <input id="password" type="password" placeholder="Password">
+
+ <button id="loginBtn" style="width:100%">Login</button>
+
+ <div id="loginMsg" class="message"></div>
+</div>
+
+<main id="panel">
+
+<div class="nav">
+ <button data-tab="dashboard">Dashboard</button>
+ <button data-tab="movies">Movies</button>
+ <button data-tab="home">Home Control</button>
+ <button data-tab="genres">Genres</button>
+ <button data-tab="users">Users</button>
+ <button data-tab="announcements">Announcements</button>
+ <button data-tab="settings">Settings</button>
+</div>
+
+
+<!-- DASHBOARD -->
+
+<section id="dashboard" class="section active">
+
+<div class="grid">
+
+<div class="stat">
+<div class="small">Total Movies</div>
+<b id="statMovies">0</b>
+</div>
+
+<div class="stat">
+<div class="small">Featured</div>
+<b id="statFeatured">0</b>
+</div>
+
+<div class="stat">
+<div class="small">Coming Soon</div>
+<b id="statComing">0</b>
+</div>
+
+<div class="stat">
+<div class="small">Genres</div>
+<b id="statGenres">0</b>
+</div>
+
+</div>
+
+<div class="card" style="margin-top:18px">
+<h2>Quick Add Movie</h2>
+<button onclick="openTab('movies')">Add Movie</button>
+</div>
+
+<div class="card">
+<h2>Admin Status</h2>
+<div id="adminStatus" class="success">Connected</div>
+</div>
+
+</section>
+
+
+<!-- MOVIES -->
+
+<section id="movies" class="section">
+
+<div class="card">
+
+<h2 id="formTitle">Add Movie</h2>
+
+<input id="title" placeholder="Movie title">
+
+<div class="row">
+
+<div>
+<label>Genre</label>
+<select id="genre">
+<option>Action</option>
+<option>Adventure</option>
+<option>Comedy</option>
+<option>Drama</option>
+<option>Horror</option>
+<option>Romance</option>
+<option>Sci-Fi</option>
+<option>Thriller</option>
+<option>Anime</option>
+<option>Bengali</option>
+<option>Hindi</option>
+<option>English</option>
+<option>Nepali</option>
+<option>Other</option>
+</select>
+</div>
+
+<div>
+<label>Year</label>
+<input id="year" type="number" placeholder="2026">
+</div>
+
+</div>
+
+<div class="row">
+
+<div>
+<label>Language</label>
+<input id="language" placeholder="Hindi / English / Bengali">
+</div>
+
+<div>
+<label>Duration</label>
+<input id="duration" placeholder="2h 10m">
+</div>
+
+</div>
+
+<div class="row">
+
+<div>
+<label>Rating</label>
+<input id="rating" placeholder="8.5">
+</div>
+
+<div>
+<label>Poster URL</label>
+<input id="poster" placeholder="https://...">
+</div>
+
+</div>
+
+<label>Backdrop URL</label>
+<input id="backdrop" placeholder="https://...">
+
+<label>Trailer URL</label>
+<input id="trailer" placeholder="https://...">
+
+<label>Main Video URL</label>
+<input id="video" placeholder="https://...">
+
+<textarea id="description" placeholder="Movie description"></textarea>
+
+<label class="check">
+<input id="featured" type="checkbox">
+Featured / Show on Home
+</label>
+
+<label class="check">
+<input id="trending" type="checkbox">
+Trending
+</label>
+
+<label class="check">
+<input id="comingSoon" type="checkbox">
+Coming Soon
+</label>
+
+<div class="actions">
+<button id="saveBtn">Add Movie</button>
+<button id="cancelBtn" class="gray" style="display:none">
+Cancel Edit
+</button>
+</div>
+
+<div id="formMsg" class="message"></div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Movie Library</h2>
+
+<input id="movieSearch"
+placeholder="Search movies..."
+oninput="renderMovies()">
+
+<div id="movieList">Loading...</div>
+
+</div>
+
+</section>
+
+
+<!-- HOME CONTROL -->
+
+<section id="home" class="section">
+
+<div class="card">
+
+<h2>Home Page Control</h2>
+
+<label>Hero Movie ID</label>
+<input id="heroMovie" placeholder="Firestore movie ID">
+
+<label class="check">
+<input id="homeFeatured" type="checkbox">
+Enable Featured section
+</label>
+
+<label class="check">
+<input id="homeTrending" type="checkbox">
+Enable Trending section
+</label>
+
+<label class="check">
+<input id="homeComing" type="checkbox">
+Enable Coming Soon section
+</label>
+
+<button id="saveHome">Save Home Settings</button>
+
+<div id="homeMsg" class="message"></div>
+
+</div>
+
+<div class="card">
+<h2>Featured Movies</h2>
+<div id="featuredList"></div>
+</div>
+
+</section>
+
+
+<!-- GENRES -->
+
+<section id="genres" class="section">
+
+<div class="card">
+
+<h2>Add Genre</h2>
+
+<input id="genreName" placeholder="Genre name">
+
+<button id="addGenre">Add Genre</button>
+
+<div id="genreMsg" class="message"></div>
+
+</div>
+
+<div class="card">
+
+<h2>Genres</h2>
+
+<div id="genreList">Loading...</div>
+
+</div>
+
+</section>
+
+
+<!-- USERS -->
+
+<section id="users" class="section">
+
+<div class="card">
+
+<h2>Users</h2>
+
+<div class="small">
+Firebase Authentication users are managed from Firebase Console.
+</div>
+
+<br>
+
+<button class="gray"
+onclick="window.open('https://console.firebase.google.com/','_blank')">
+Open Firebase Console
+</button>
+
+</div>
+
+</section>
+
+
+<!-- ANNOUNCEMENTS -->
+
+<section id="announcements" class="section">
+
+<div class="card">
+
+<h2>New Announcement</h2>
+
+<input id="announcementTitle" placeholder="Announcement title">
+
+<textarea id="announcementText"
+placeholder="Announcement message"></textarea>
+
+<button id="addAnnouncement">Publish Announcement</button>
+
+<div id="announcementMsg" class="message"></div>
+
+</div>
+
+<div class="card">
+
+<h2>Announcements</h2>
+
+<div id="announcementList">Loading...</div>
+
+</div>
+
+</section>
+
+
+<!-- SETTINGS -->
+
+<section id="settings" class="section">
+
+<div class="card">
+
+<h2>App Settings</h2>
+
+<input id="appName" placeholder="App name">
+
+<input id="logoUrl" placeholder="Logo URL">
+
+<input id="privacyUrl" placeholder="Privacy Policy URL">
+
+<input id="termsUrl" placeholder="Terms URL">
+
+<input id="contactUrl" placeholder="Contact URL">
+
+<label class="check">
+<input id="maintenance" type="checkbox">
+Maintenance Mode
+</label>
+
+<button id="saveSettings">Save Settings</button>
+
+<div id="settingsMsg" class="message"></div>
+
+</div>
+
+</section>
+
+</main>
+
+
+<script type="module">
+
+import {initializeApp}
+from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+import {
+getAuth,
+signInWithEmailAndPassword,
+onAuthStateChanged,
+signOut
+}
+from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+import {
+getFirestore,
+collection,
+addDoc,
+getDocs,
+doc,
+updateDoc,
+deleteDoc,
+setDoc,
+getDoc,
+serverTimestamp
+}
+from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+const firebaseConfig={
+apiKey:"AIzaSyAfXYOK6euvJHY5jpbl3y0JYxw_OnjC2wc",
+authDomain:"cineva-admin.firebaseapp.com",
+projectId:"cineva-admin",
+storageBucket:"cineva-admin.firebasestorage.app",
+messagingSenderId:"496503778333",
+appId:"1:496503778333:web:58d1e90513d2c9fa3baaf4",
+measurementId:"G-M8TCQB3XXS"
+};
+
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+let movies=[];
+let genres=[];
+let editingId=null;
+
+
+const $=id=>document.getElementById(id);
+
+
+window.openTab=function(id){
+
+document.querySelectorAll(".section")
+.forEach(x=>x.classList.remove("active"));
+
+$(id).classList.add("active");
+
+if(id==="dashboard") updateDashboard();
+if(id==="home") loadHome();
+if(id==="genres") loadGenres();
+if(id==="announcements") loadAnnouncements();
+if(id==="settings") loadSettings();
+
+};
+
+
+document.querySelectorAll("[data-tab]")
+.forEach(btn=>{
+btn.onclick=()=>openTab(btn.dataset.tab);
+});
+
+
+$("loginBtn").onclick=async()=>{
+
+const email=$("email").value.trim();
+const password=$("password").value;
+
+$("loginMsg").innerHTML="";
+
+try{
+await signInWithEmailAndPassword(auth,email,password);
+}catch(e){
+$("loginMsg").innerHTML=
+`<div class="error">${escapeHtml(e.message)}</div>`;
+}
+
+};
+
+
+$("logout").onclick=()=>signOut(auth);
+
+
+onAuthStateChanged(auth,user=>{
+
+if(user){
+
+$("login").style.display="none";
+$("panel").style.display="block";
+$("logout").style.display="block";
+
+$("adminStatus").textContent=
+"Logged in: "+user.email;
+
+loadAll();
+
+}else{
+
+$("login").style.display="block";
+$("panel").style.display="none";
+$("logout").style.display="none";
+
+}
+
+});
+
+
+async function loadAll(){
+
+await loadMovies();
+await loadGenres();
+await loadHome();
+await loadAnnouncements();
+await loadSettings();
+updateDashboard();
+
+}
+
+
+async function loadMovies(){
+
+try{
+
+const snap=await getDocs(collection(db,"movies"));
+
+movies=[];
+
+snap.forEach(x=>{
+movies.push({id:x.id,...x.data()});
+});
+
+renderMovies();
+updateDashboard();
+
+}catch(e){
+
+$("movieList").innerHTML=
+`<div class="error">${escapeHtml(e.message)}</div>`;
+
+}
+
+}
+
+
+window.renderMovies=function(){
+
+const q=$("movieSearch").value.trim().toLowerCase();
+
+const list=movies.filter(m=>
+String(m.title||"").toLowerCase().includes(q)
+);
+
+if(!list.length){
+
+$("movieList").innerHTML=
+"<div class='empty'>No movies found.</div>";
+
+return;
+
+}
+
+$("movieList").innerHTML="";
+
+list.forEach(m=>{
+
+const div=document.createElement("div");
+div.className="movie";
+
+div.innerHTML=`
+
+<img src="${escapeHtml(m.posterUrl||"")}"
+onerror="this.style.opacity='.25'">
+
+<div class="movieInfo">
+
+<div class="movieTitle">
+${escapeHtml(m.title||"Untitled")}
+</div>
+
+<div class="small">
+
+${escapeHtml(m.genre||"Other")}
+
+${m.year?" • "+escapeHtml(String(m.year)):""}
+
+${m.language?" • "+escapeHtml(m.language):""}
+
+</div>
+
+<div>
+
+${m.featured?"<span class='badge'>FEATURED</span>":""}
+
+${m.trending?"<span class='badge'>TRENDING</span>":""}
+
+${m.comingSoon?"<span class='badge'>COMING SOON</span>":""}
+
+</div>
+
+</div>
+
+<div class="actions">
+
+<button class="gray edit">Edit</button>
+
+<button class="danger delete">Delete</button>
+
+</div>
+`;
+
+div.querySelector(".edit")
+.onclick=()=>editMovie(m);
+
+div.querySelector(".delete")
+.onclick=()=>removeMovie(m.id);
+
+$("movieList").appendChild(div);
+
+});
+
+};
+
+
+$("saveBtn").onclick=async()=>{
+
+const title=$("title").value.trim();
+
+if(!title){
+
+$("formMsg").innerHTML=
+"<div class='error'>Movie title is required.</div>";
+
+return;
+}
+
+
+const data={
+
+title:title,
+
+genre:$("genre").value,
+
+year:$("year").value?
+Number($("year").value):null,
+
+language:$("language").value.trim(),
+
+duration:$("duration").value.trim(),
+
+rating:$("rating").value.trim(),
+
+posterUrl:$("poster").value.trim(),
+
+backdropUrl:$("backdrop").value.trim(),
+
+trailerUrl:$("trailer").value.trim(),
+
+videoUrl:$("video").value.trim(),
+
+description:$("description").value.trim(),
+
+featured:$("featured").checked,
+
+trending:$("trending").checked,
+
+comingSoon:$("comingSoon").checked,
+
+updatedAt:serverTimestamp()
+
+};
+
+
+try{
+
+if(editingId){
+
+await updateDoc(
+doc(db,"movies",editingId),
+data
+);
+
+$("formMsg").innerHTML=
+"<div class='success'>Movie updated successfully.</div>";
+
+}else{
+
+await addDoc(
+collection(db,"movies"),
+{
+...data,
+createdAt:serverTimestamp()
+}
+);
+
+$("formMsg").innerHTML=
+"<div class='success'>Movie added successfully.</div>";
+
+}
+
+clearForm();
+await loadMovies();
+
+}catch(e){
+
+$("formMsg").innerHTML=
+`<div class="error">${escapeHtml(e.message)}</div>`;
+
+}
+
+};
+
+
+function editMovie(m){
+
+editingId=m.id;
+
+$("title").value=m.title||"";
+$("genre").value=m.genre||"Action";
+$("year").value=m.year||"";
+$("language").value=m.language||"";
+$("duration").value=m.duration||"";
+$("rating").value=m.rating||"";
+$("poster").value=m.posterUrl||"";
+$("backdrop").value=m.backdropUrl||"";
+$("trailer").value=m.trailerUrl||"";
+$("video").value=m.videoUrl||"";
+$("description").value=m.description||"";
+
+$("featured").checked=!!m.featured;
+$("trending").checked=!!m.trending;
+$("comingSoon").checked=!!m.comingSoon;
+
+$("formTitle").textContent="Edit Movie";
+$("saveBtn").textContent="Update Movie";
+$("cancelBtn").style.display="inline-block";
+
+openTab("movies");
+
+window.scrollTo({top:0,behavior:"smooth"});
+
+}
+
+
+async function removeMovie(id){
+
+if(!confirm("Delete this movie permanently?")) return;
+
+try{
+
+await deleteDoc(doc(db,"movies",id));
+
+await loadMovies();
+
+}catch(e){
+
+alert(e.message);
+
+}
+
+}
+
+
+$("cancelBtn").onclick=clearForm;
+
+
+function clearForm(){
+
+editingId=null;
+
+[
+"title","year","language","duration","rating",
+"poster","backdrop","trailer","video","description"
+].forEach(id=>$(id).value="");
+
+$("genre").value="Action";
+
+$("featured").checked=false;
+$("trending").checked=false;
+$("comingSoon").checked=false;
+
+$("formTitle").textContent="Add Movie";
+$("saveBtn").textContent="Add Movie";
+$("cancelBtn").style.display="none";
+
+}
+
+
+function updateDashboard(){
+
+$("statMovies").textContent=movies.length;
+
+$("statFeatured").textContent=
+movies.filter(x=>x.featured).length;
+
+$("statComing").textContent=
+movies.filter(x=>x.comingSoon).length;
+
+$("statGenres").textContent=genres.length;
+
+}
+
+
+async function loadHome(){
+
+try{
+
+const snap=await getDoc(
+doc(db,"settings","home")
+);
+
+if(snap.exists()){
+
+const d=snap.data();
+
+$("heroMovie").value=d.heroMovieId||"";
+$("homeFeatured").checked=!!d.featuredEnabled;
+$("homeTrending").checked=!!d.trendingEnabled;
+$("homeComing").checked=!!d.comingSoonEnabled;
+
+}
+
+renderFeatured();
+
+}catch(e){}
+
+}
+
+
+function renderFeatured(){
+
+const list=movies.filter(x=>x.featured);
+
+$("featuredList").innerHTML=list.length
+?list.map(x=>`
+<div class="movie">
+<img src="${escapeHtml(x.posterUrl||"")}">
+<div class="movieInfo">
+<div class="movieTitle">${escapeHtml(x.title)}</div>
+<div class="small">${escapeHtml(x.genre||"")}</div>
+</div>
+</div>
+`).join("")
+:"<div class='empty'>No featured movies.</div>";
+
+}
+
+
+$("saveHome").onclick=async()=>{
+
+try{
+
+await setDoc(
+doc(db,"settings","home"),
+{
+heroMovieId:$("heroMovie").value.trim(),
+featuredEnabled:$("homeFeatured").checked,
+trendingEnabled:$("homeTrending").checked,
+comingSoonEnabled:$("homeComing").checked,
+updatedAt:serverTimestamp()
+}
+);
+
+$("homeMsg").innerHTML=
+"<div class='success'>Home settings saved.</div>";
+
+}catch(e){
+
+$("homeMsg").innerHTML=
+`<div class="error">${escapeHtml(e.message)}</div>`;
+
+}
+
+};
+
+
+async function loadGenres(){
+
+try{
+
+const snap=await getDocs(collection(db,"genres"));
+
+genres=[];
+
+snap.forEach(x=>{
+genres.push({id:x.id,...x.data()});
+});
+
+renderGenres();
+updateDashboard();
+
+}catch(e){
+
+$("genreList").innerHTML=
+`<div class="error">${escapeHtml(e.message)}</div>`;
+
+}
+
+}
+
+
+function renderGenres(){
+
+if(!genres.length){
+
+$("genreList").innerHTML=
+"<div class='empty'>No genres yet.</div>";
+
+return;
+
+}
+
+$("genreList").innerHTML=genres.map(g=>`
+
+<div class="movie">
+
+<div class="movieInfo">
+<div class="movieTitle">${escapeHtml(g.name||"")}</div>
+</div>
+
+<button class="danger"
+onclick="deleteGenre('${g.id}')">
+Delete
+</button>
+
+</div>
+
+`).join("");
+
+}
+
+
+$("addGenre").onclick=async()=>{
+
+const name=$("genreName").value.trim();
+
+if(!name){
+
+$("genreMsg").innerHTML=
+"<div class='error'>Enter a genre name.</div>";
+
+return;
+
+}
+
+try{
+
+await addDoc(
+collection(db,"genres"),
+{
+name,
+createdAt:serverTimestamp()
+}
+);
+
+$("genreName").value="";
+
+$("genreMsg").innerHTML=
+"<div class='success'>Genre added.</div>";
+
+await loadGenres();
+
+}catch(e){
+
+$("genreMsg").innerHTML=
+`<div class="error">${escapeHtml(e.message)}</div>`;
+
+}
+
+};
+
+
+window.deleteGenre=async id=>{
+
+if(!confirm("Delete this genre?"))return;
+
+await deleteDoc(doc(db,"genres",id));
+await loadGenres();
+
+};
+
+
+async function loadAnnouncements(){
+
+try{
+
+const snap=await getDocs(
+collection(db,"announcements")
+);
+
+const arr=[];
+
+snap.forEach(x=>{
+arr.push({id:x.id,...x.data()});
+});
+
+$("announcementList").innerHTML=arr.length
+?arr.map(x=>`
+<div class="movie">
+<div class="movieInfo">
+<div class="movieTitle">${escapeHtml(x.title||"")}</div>
+<div class="small">${escapeHtml(x.text||"")}</div>
+</div>
+<button class="danger"
+onclick="deleteAnnouncement('${x.id}')">
+Delete
+</button>
+</div>
+`).join("")
+:"<div class='empty'>No announcements.</div>";
+
+}catch(e){
+
+$("announcementList").innerHTML=
+`<div class="error">${escapeHtml(e.message)}</div>`;
+
+}
+
+}
+
+
+$("addAnnouncement").onclick=async()=>{
+
+const title=$("announcementTitle").value.trim();
+const text=$("announcementText").value.trim();
+
+if(!title||!text){
+
+$("announcementMsg").innerHTML=
+"<div class='error'>Title and message are required.</div>";
+
+return;
+
+}
+
+try{
+
+await addDoc(
+collection(db,"announcements"),
+{
+title,
+text,
+createdAt:serverTimestamp()
+}
+);
+
+$("announcementTitle").value="";
+$("announcementText").value="";
+
+$("announcementMsg").innerHTML=
+"<div class='success'>Announcement published.</div>";
+
+await loadAnnouncements();
+
+}catch(e){
+
+$("announcementMsg").innerHTML=
+`<div class="error">${escapeHtml(e.message)}</div>`;
+
+}
+
+};
+
+
+window.deleteAnnouncement=async id=>{
+
+if(!confirm("Delete this announcement?"))return;
+
+await deleteDoc(
+doc(db,"announcements",id)
+);
+
+await loadAnnouncements();
+
+};
+
+
+async function loadSettings(){
+
+try{
+
+const snap=await getDoc(
+doc(db,"settings","app")
+);
+
+if(snap.exists()){
+
+const d=snap.data();
+
+$("appName").value=d.appName||"CINEVA";
+$("logoUrl").value=d.logoUrl||"";
+$("privacyUrl").value=d.privacyUrl||"";
+$("termsUrl").value=d.termsUrl||"";
+$("contactUrl").value=d.contactUrl||"";
+$("maintenance").checked=!!d.maintenance;
+
+}
+
+}catch(e){}
+
+}
+
+
+$("saveSettings").onclick=async()=>{
+
+try{
+
+await setDoc(
+doc(db,"settings","app"),
+{
+appName:$("appName").value.trim()||"CINEVA",
+logoUrl:$("logoUrl").value.trim(),
+privacyUrl:$("privacyUrl").value.trim(),
+termsUrl:$("termsUrl").value.trim(),
+contactUrl:$("contactUrl").value.trim(),
+maintenance:$("maintenance").checked,
+updatedAt:serverTimestamp()
+}
+);
+
+$("settingsMsg").innerHTML=
+"<div class='success'>Settings saved.</div>";
+
+}catch(e){
+
+$("settingsMsg").innerHTML=
+`<div class="error">${escapeHtml(e.message)}</div>`;
+
+}
+
+};
+
+
+function escapeHtml(value){
+
+return String(value??"")
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
+
+}
+
+</script>
+
+</body>
+</html>
