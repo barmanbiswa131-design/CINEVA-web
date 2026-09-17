@@ -93,6 +93,32 @@ textarea{min-height:100px;resize:vertical}
  .movie{align-items:flex-start}
  .movie .actions{flex-direction:column}
 }
+
+/* ===== CINEVA MODERN DASHBOARD ===== */
+.dashboardHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.dashboardHead .small{margin-top:4px}
+.dashboardStats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.dashStat{background:linear-gradient(145deg,#121b27,#0d141e);border:1px solid #263548;border-radius:16px;padding:16px;min-height:116px}
+.dashStatTop{display:flex;align-items:center;justify-content:space-between;color:#91a1b4;font-size:13px}
+.dashIcon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#15304a;color:#48bdff;font-size:17px}
+.dashValue{font-size:30px;font-weight:800;margin-top:12px;letter-spacing:-.5px}
+.dashMeta{font-size:11px;color:#718196;margin-top:4px}
+.dashboardTwo{display:grid;grid-template-columns:1.55fr 1fr;gap:14px;margin-top:14px}
+.dashboardCard{background:#101722;border:1px solid #202e40;border-radius:16px;padding:18px}
+.dashboardCard h3{font-size:16px;margin-bottom:4px}
+.chartBars{height:190px;display:flex;align-items:flex-end;gap:10px;padding-top:18px}
+.chartBarWrap{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px}
+.chartBar{width:100%;max-width:34px;border-radius:7px 7px 3px 3px;background:linear-gradient(180deg,#31b8ff,#1679e6);min-height:3px}
+.chartLabel{font-size:10px;color:#74859a}
+.activityItem{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid #1e2936}
+.activityItem:last-child{border-bottom:0}
+.activityDot{width:8px;height:8px;border-radius:50%;background:#27b7ff;margin-top:6px;flex:none}
+.activityText{font-size:13px}.activityTime{font-size:11px;color:#718196;margin-top:3px}
+.quickGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.quickBtn{background:#172232!important;border:1px solid #26384d!important;text-align:left}
+@media(max-width:900px){.dashboardStats{grid-template-columns:repeat(2,1fr)}.dashboardTwo{grid-template-columns:1fr}}
+@media(max-width:600px){.dashboardStats{grid-template-columns:1fr 1fr}.dashValue{font-size:24px}.dashboardCard{padding:14px}}
+
 </style>
 </head>
 
@@ -133,45 +159,71 @@ textarea{min-height:100px;resize:vertical}
 
 
 <!-- DASHBOARD -->
-
 <section id="dashboard" class="section active">
 
-<div class="grid">
-
-<div class="stat">
-<div class="small">Total Movies</div>
-<b id="statMovies">0</b>
+<div class="dashboardHead">
+  <div>
+    <h2>Dashboard</h2>
+    <div class="small">CINEVA live overview from Firestore.</div>
+  </div>
+  <button class="gray" onclick="loadDashboard()">↻ Refresh</button>
 </div>
 
-<div class="stat">
-<div class="small">Featured</div>
-<b id="statFeatured">0</b>
+<div class="dashboardStats">
+  <div class="dashStat"><div class="dashStatTop"><span>👥 Total Users</span><span class="dashIcon">U</span></div><div class="dashValue" id="dashTotalUsers">—</div><div class="dashMeta">Registered users</div></div>
+  <div class="dashStat"><div class="dashStatTop"><span>🟢 Active Users</span><span class="dashIcon">A</span></div><div class="dashValue" id="dashActiveUsers">—</div><div class="dashMeta">Active in last 24 hours</div></div>
+  <div class="dashStat"><div class="dashStatTop"><span>🟡 New Users</span><span class="dashIcon">N</span></div><div class="dashValue" id="dashNewUsers">—</div><div class="dashMeta" id="dashNewMeta">Today</div></div>
+  <div class="dashStat"><div class="dashStatTop"><span>🔴 Blocked Users</span><span class="dashIcon">B</span></div><div class="dashValue" id="dashBlockedUsers">—</div><div class="dashMeta">Blocked accounts</div></div>
+
+  <div class="dashStat"><div class="dashStatTop"><span>💎 Premium Users</span><span class="dashIcon">P</span></div><div class="dashValue" id="dashPremiumUsers">—</div><div class="dashMeta">Active premium status</div></div>
+  <div class="dashStat"><div class="dashStatTop"><span>🎬 Total Movies</span><span class="dashIcon">M</span></div><div class="dashValue" id="dashMovies">0</div><div class="dashMeta">Movie library</div></div>
+  <div class="dashStat"><div class="dashStatTop"><span>📺 Total Series</span><span class="dashIcon">S</span></div><div class="dashValue" id="dashSeries">—</div><div class="dashMeta">Series library</div></div>
+  <div class="dashStat"><div class="dashStatTop"><span>▶️ Total Views</span><span class="dashIcon">V</span></div><div class="dashValue" id="dashViews">—</div><div class="dashMeta">From content counters</div></div>
+
+  <div class="dashStat"><div class="dashStatTop"><span>⬇️ APK Downloads</span><span class="dashIcon">D</span></div><div class="dashValue" id="dashDownloads">—</div><div class="dashMeta">Tracking will appear here</div></div>
+  <div class="dashStat"><div class="dashStatTop"><span>💰 Coins Distributed</span><span class="dashIcon">C</span></div><div class="dashValue" id="dashCoins">—</div><div class="dashMeta">From coin transaction data</div></div>
+  <div class="dashStat"><div class="dashStatTop"><span>🎫 Open Tickets</span><span class="dashIcon">T</span></div><div class="dashValue" id="dashTickets">—</div><div class="dashMeta">Customer support</div></div>
+  <div class="dashStat"><div class="dashStatTop"><span>🚨 Pending Reports</span><span class="dashIcon">R</span></div><div class="dashValue" id="dashReports">—</div><div class="dashMeta">Needs moderation</div></div>
 </div>
 
-<div class="stat">
-<div class="small">Coming Soon</div>
-<b id="statComing">0</b>
+<div class="dashboardTwo">
+  <div class="dashboardCard">
+    <h3>📈 New Users — Last 7 Days</h3>
+    <div class="small">Daily registrations based on user createdAt data.</div>
+    <div class="chartBars" id="dashUserChart"></div>
+  </div>
+
+  <div class="dashboardCard">
+    <h3>⚡ Quick Actions</h3>
+    <div class="small">Jump directly to common admin tasks.</div>
+    <div class="quickGrid">
+      <button class="quickBtn" onclick="openTab('movies')">＋ Add Movie</button>
+      <button class="quickBtn" onclick="openTab('series')">＋ Add Series</button>
+      <button class="quickBtn" onclick="openTab('announcements')">📢 Announcement</button>
+      <button class="quickBtn" onclick="openTab('support')">🎫 Support</button>
+      <button class="quickBtn" onclick="openTab('reports')">🚨 Reports</button>
+      <button class="quickBtn" onclick="openTab('settings')">⚙ App Settings</button>
+    </div>
+  </div>
 </div>
 
-<div class="stat">
-<div class="small">Genres</div>
-<b id="statGenres">0</b>
+<div class="dashboardTwo">
+  <div class="dashboardCard">
+    <h3>🕒 Recent Admin Activity</h3>
+    <div id="dashActivity"><div class="empty">Loading activity...</div></div>
+  </div>
+
+  <div class="dashboardCard">
+    <h3>📌 Content Status</h3>
+    <div id="dashContentStatus"><div class="empty">Loading...</div></div>
+  </div>
 </div>
 
-</div>
-
-<div class="card" style="margin-top:18px">
-<h2>Quick Add Movie</h2>
-<button onclick="openTab('movies')">Add Movie</button>
-</div>
-
-<div class="card">
-<h2>Admin Status</h2>
-<div id="adminStatus" class="success">Connected</div>
+<div class="card" style="margin-top:14px">
+  <div id="dashboardMsg" class="message success">Dashboard connected.</div>
 </div>
 
 </section>
-
 
 <!-- MOVIES -->
 
@@ -703,6 +755,7 @@ document.querySelectorAll(".section")
 $(id).classList.add("active");
 
 if(id==="dashboard") updateDashboard();
+loadDashboard();
 if(id==="home") loadHome();
 if(id==="genres") loadGenres();
 if(id==="announcements") loadAnnouncements();
@@ -1851,6 +1904,190 @@ $("uploadPoster").onclick=()=>uploadFile("posterUpload","posters");
 $("uploadBackdrop").onclick=()=>uploadFile("backdropUpload","backdrops");
 $("uploadVideo").onclick=()=>uploadFile("videoUpload","videos");
 $("uploadTrailer").onclick=()=>uploadFile("trailers");
+
+
+/* ===== LIVE DASHBOARD ===== */
+function dashDate(value){
+    if(!value) return null;
+    if(value && typeof value.toDate === "function") return value.toDate();
+    if(value instanceof Date) return value;
+    const d=new Date(value);
+    return isNaN(d.getTime())?null:d;
+}
+
+function dashNum(v){
+    const n=Number(v);
+    return Number.isFinite(n)?n:0;
+}
+
+function dashSet(id,value){
+    const el=$(id);
+    if(el) el.textContent=value;
+}
+
+async function loadDashboard(){
+    try{
+        const [usersSnap,seriesSnap,ticketSnap,reportSnap]=await Promise.allSettled([
+            getDocs(collection(db,"users")),
+            getDocs(collection(db,"series")),
+            getDocs(collection(db,"supportTickets")),
+            getDocs(collection(db,"reports"))
+        ]);
+
+        const users=[];
+        if(usersSnap.status==="fulfilled"){
+            usersSnap.value.forEach(x=>users.push({id:x.id,...x.data()}));
+        }
+
+        const series=[];
+        if(seriesSnap.status==="fulfilled"){
+            seriesSnap.value.forEach(x=>series.push({id:x.id,...x.data()}));
+        }
+
+        const tickets=[];
+        if(ticketSnap.status==="fulfilled"){
+            ticketSnap.value.forEach(x=>tickets.push({id:x.id,...x.data()}));
+        }
+
+        const reports=[];
+        if(reportSnap.status==="fulfilled"){
+            reportSnap.value.forEach(x=>reports.push({id:x.id,...x.data()}));
+        }
+
+        const now=new Date();
+        const dayMs=86400000;
+
+        const createdOf=u=>dashDate(u.createdAt||u.created||u.joinedAt||u.registeredAt);
+        const lastOf=u=>dashDate(u.lastActive||u.lastSeen||u.updatedAt||u.lastLogin);
+
+        const totalUsers=users.length;
+        const activeUsers=users.filter(u=>{
+            const d=lastOf(u);
+            return d && (now-d)<=dayMs && (now-d)>=0;
+        }).length;
+
+        const newToday=users.filter(u=>{
+            const d=createdOf(u);
+            return d && d.toDateString()===now.toDateString();
+        }).length;
+
+        const new7=users.filter(u=>{
+            const d=createdOf(u);
+            return d && (now-d)<=7*dayMs && (now-d)>=0;
+        }).length;
+
+        const new30=users.filter(u=>{
+            const d=createdOf(u);
+            return d && (now-d)<=30*dayMs && (now-d)>=0;
+        }).length;
+
+        const blocked=users.filter(u=>String(u.status||"").toLowerCase()==="blocked" || u.blocked===true).length;
+        const premium=users.filter(u=>u.premiumActive===true || u.premium===true || String(u.subscriptionStatus||"").toLowerCase()==="active").length;
+
+        const movieViews=movies.reduce((s,m)=>s+dashNum(m.views??m.viewCount??m.plays),0);
+        const seriesViews=series.reduce((s,m)=>s+dashNum(m.views??m.viewCount??m.plays),0);
+
+        const openTickets=tickets.filter(x=>!["resolved","closed"].includes(String(x.status||"open").toLowerCase())).length;
+        const pendingReports=reports.filter(x=>!["resolved","closed","rejected"].includes(String(x.status||"open").toLowerCase())).length;
+
+        dashSet("dashTotalUsers",totalUsers);
+        dashSet("dashActiveUsers",activeUsers);
+        dashSet("dashNewUsers",newToday);
+        dashSet("dashNewMeta","Today • "+new7+" in 7d • "+new30+" in 30d");
+        dashSet("dashBlockedUsers",blocked);
+        dashSet("dashPremiumUsers",premium);
+        dashSet("dashMovies",movies.length);
+        dashSet("dashSeries",series.length);
+        dashSet("dashViews",(movieViews+seriesViews).toLocaleString());
+        dashSet("dashTickets",openTickets);
+        dashSet("dashReports",pendingReports);
+
+        /* APK download tracking is intentionally not invented.
+           It will use appEvents once Web/App logging is connected. */
+        dashSet("dashDownloads","—");
+
+        /* Coin transactions are optional until the real reward system exists. */
+        let coinTotal=null;
+        try{
+            const coinSnap=await getDocs(collection(db,"coinTransactions"));
+            let sum=0;
+            coinSnap.forEach(x=>{
+                const d=x.data();
+                const amount=d.amount??d.coins??0;
+                if(d.type==="spent" || d.type==="debit") return;
+                sum+=Math.max(0,dashNum(amount));
+            });
+            coinTotal=sum;
+        }catch(_){}
+        dashSet("dashCoins",coinTotal===null?"—":coinTotal.toLocaleString());
+
+        /* 7-day user chart */
+        const labels=[];
+        const counts=[];
+        for(let i=6;i>=0;i--){
+            const d=new Date(now.getTime()-i*dayMs);
+            labels.push(d.toLocaleDateString(undefined,{weekday:"short"}));
+            const count=users.filter(u=>{
+                const c=createdOf(u);
+                return c && c.toDateString()===d.toDateString();
+            }).length;
+            counts.push(count);
+        }
+        const max=Math.max(1,...counts);
+        const chart=$( "dashUserChart" );
+        if(chart){
+            chart.innerHTML=counts.map((v,i)=>`
+                <div class="chartBarWrap">
+                    <div class="chartBar" style="height:${Math.max(3,Math.round(v/max*100))}%"></div>
+                    <div class="chartLabel">${labels[i]} · ${v}</div>
+                </div>
+            `).join("");
+        }
+
+        const activity=[];
+        if(newToday) activity.push("New users registered today: "+newToday);
+        if(openTickets) activity.push("Open support tickets: "+openTickets);
+        if(pendingReports) activity.push("Reports awaiting review: "+pendingReports);
+        activity.push("Movies in library: "+movies.length);
+        activity.push("Series in library: "+series.length);
+
+        const act=$( "dashActivity" );
+        if(act){
+            act.innerHTML=activity.map(x=>`
+                <div class="activityItem">
+                    <div class="activityDot"></div>
+                    <div><div class="activityText">${escapeHtml(x)}</div><div class="activityTime">Live dashboard data</div></div>
+                </div>
+            `).join("");
+        }
+
+        const cs=$( "dashContentStatus" );
+        if(cs){
+            cs.innerHTML=`
+                <div class="activityItem"><div class="activityDot"></div><div><div class="activityText">Featured movies</div><div class="activityTime">${movies.filter(x=>x.featured).length} active</div></div></div>
+                <div class="activityItem"><div class="activityDot"></div><div><div class="activityText">Trending movies</div><div class="activityTime">${movies.filter(x=>x.trending).length} active</div></div></div>
+                <div class="activityItem"><div class="activityDot"></div><div><div class="activityText">Coming soon</div><div class="activityTime">${movies.filter(x=>x.comingSoon).length} titles</div></div></div>
+            `;
+        }
+
+        const msg=$( "dashboardMsg" );
+        if(msg) msg.textContent="Dashboard refreshed • "+new Date().toLocaleTimeString();
+
+    }catch(e){
+        const msg=$( "dashboardMsg" );
+        if(msg){
+            msg.className="message error";
+            msg.textContent="Dashboard error: "+e.message;
+        }
+    }
+}
+
+/* Make Dashboard the first-class live page. */
+const dashboardTabBase=window.openTab;
+window.openTab=function(id){
+    dashboardTabBase(id);
+    if(id==="dashboard") loadDashboard();
+};
 
 console.log("CINEVA Complete Admin System loaded.");
 
