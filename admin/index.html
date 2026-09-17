@@ -146,6 +146,15 @@ button.gray{background:#182433}
 @media(max-width:900px){header{transform:translateX(-100%);transition:.2s}body.adminMenuOpen header{transform:translateX(0)}main#panel{margin-left:0!important;padding-left:15px;padding-right:15px}.modernGrid{grid-template-columns:repeat(2,1fr)}#panel>.nav{left:0}}
 @media(max-width:560px){.modernGrid{grid-template-columns:1fr}.modernLayout{grid-template-columns:1fr}}
 
+
+/* Final layout: sidebar + top bar */
+header{position:fixed!important;left:248px!important;right:0!important;top:0!important;bottom:auto!important;width:auto!important;height:64px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;padding:0 20px!important;background:#0a111bf2!important;border-bottom:1px solid #203044!important;border-right:0!important;backdrop-filter:blur(14px)!important;z-index:60!important}
+header .logo{display:none!important}.adminTop{display:flex;align-items:center;gap:12px;width:100%}.topSearch{max-width:390px;flex:1;background:#0f1925;border:1px solid #26384b;border-radius:10px;padding:10px 12px;color:#fff}.adminTop span{color:#71879c;font-size:12px}.adminTop button{margin-left:auto}
+#panel>.nav{position:fixed!important;left:0!important;top:0!important;bottom:0!important;width:248px!important;height:100vh!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;padding:76px 12px 18px!important;background:#0a111b!important;border-right:1px solid #203044!important;overflow:auto!important;z-index:50!important}
+#panel>.nav button{width:100%!important;text-align:left!important;padding:10px 12px!important;margin:2px 0!important}
+main#panel{margin-left:248px!important;padding-top:88px!important}
+@media(max-width:900px){header{left:0!important}.adminTop .topSearch{display:none}#panel>.nav{transform:translateX(-100%);transition:.2s}.adminMenuOpen #panel>.nav{transform:translateX(0)}main#panel{margin-left:0!important}}
+
 </style>
 </head>
 
@@ -153,7 +162,7 @@ button.gray{background:#182433}
 
 <header>
  <div class="logo">CINEVA</div>
- <button id="logout" class="gray" style="display:none">Logout</button>
+ <div class="adminTop"><input class="topSearch" placeholder="Search CINEVA..."><span id="adminStatus">● Secure Admin</span><button id="logout" class="gray">Logout</button></div>
 </header>
 
 <div id="login" class="card">
@@ -864,8 +873,7 @@ $("login").style.display="none";
 $("panel").style.display="block";
 $("logout").style.display="block";
 
-$("adminStatus").textContent=
-"Logged in: "+user.email;
+$("adminStatus").textContent="● "+(user.email||"Admin");
 
 loadAll();
 
