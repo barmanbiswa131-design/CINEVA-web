@@ -726,10 +726,6 @@ URL mode works without Firebase Storage. Upload mode is ready for Firebase Stora
 </div>
 </section>
 
-</main>
-
-
-
 <section id="premium" class="section">
 <div class="pageTitleBar"><div><h2>💎 Premium</h2><div class="small">Subscription overview and premium controls</div></div></div>
 <div class="modernGrid"><div class="modernStat"><div class="label">Premium Users</div><div class="value" id="premiumUsers">—</div></div><div class="modernStat"><div class="label">Active Plans</div><div class="value">3</div></div><div class="modernStat"><div class="label">Expiring Soon</div><div class="value">—</div></div><div class="modernStat"><div class="label">Revenue</div><div class="value">—</div></div></div>
@@ -762,6 +758,20 @@ URL mode works without Firebase Storage. Upload mode is ready for Firebase Stora
 <div class="pageTitleBar"><div><h2>🔐 Security & Roles</h2><div class="small">Keep administrative access controlled</div></div></div>
 <div class="card"><div class="tableWrap"><table class="table"><thead><tr><th>Role</th><th>Content</th><th>Users</th><th>Support</th><th>Settings</th></tr></thead><tbody><tr><td>Super Admin</td><td>Full</td><td>Full</td><td>Full</td><td>Full</td></tr><tr><td>Content Manager</td><td>Full</td><td>View</td><td>—</td><td>—</td></tr><tr><td>Support Agent</td><td>View</td><td>View</td><td>Full</td><td>—</td></tr><tr><td>Moderator</td><td>Moderate</td><td>View</td><td>—</td><td>—</td></tr></tbody></table></div></div>
 </section>
+
+<section id="episodes" class="section">
+<div class="card"><h2>Episodes</h2><div class="small">Publish and manage series episodes.</div>
+<select id="episodeSeries"></select>
+<input id="episodeTitle" placeholder="Episode title">
+<div class="row"><input id="episodeSeason" type="number" placeholder="Season number"><input id="episodeNumber" type="number" placeholder="Episode number"></div>
+<input id="episodeVideo" placeholder="Video URL"><input id="episodeTrailer" placeholder="Trailer URL">
+<textarea id="episodeDescription" placeholder="Episode description"></textarea>
+<div class="actions"><button id="addEpisode">Publish Episode</button></div>
+<div id="episodeMsg" class="message"></div></div>
+<div class="card"><h3>Episode list</h3><div id="episodeList"><div class="empty">Select a series.</div></div></div>
+</section></main>
+
+
 
 <script type="module">
 
