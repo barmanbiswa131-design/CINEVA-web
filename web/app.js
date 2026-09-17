@@ -2214,3 +2214,83 @@ document.addEventListener("click", function (e) {
     link.click();
     link.remove();
 }, true);
+
+/* CINEVA APK Top Notification */
+(function () {
+    function showCinevaAPKNotice() {
+        if (document.getElementById("cinevaApkNotice")) return;
+
+        const notice = document.createElement("div");
+        notice.id = "cinevaApkNotice";
+
+        notice.innerHTML = `
+            <div>
+                <strong>📱 CINEVA Android App</strong>
+                <span>Download the latest app</span>
+            </div>
+            <button id="cinevaApkDownload">Download APK</button>
+            <button id="cinevaApkClose" aria-label="Close">×</button>
+        `;
+
+        notice.style.cssText = `
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 24px);
+            max-width: 520px;
+            z-index: 99999;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(8, 12, 24, 0.96);
+            border: 1px solid rgba(0, 200, 255, 0.35);
+            box-shadow: 0 8px 30px rgba(0,0,0,.45);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: Arial, sans-serif;
+            backdrop-filter: blur(12px);
+        `;
+
+        notice.querySelector("div").style.cssText =
+            "flex:1;display:flex;flex-direction:column;gap:3px;";
+
+        notice.querySelector("strong").style.cssText =
+            "font-size:14px;";
+
+        notice.querySelector("span").style.cssText =
+            "font-size:11px;opacity:.7;";
+
+        notice.querySelector("#cinevaApkDownload").style.cssText =
+            "border:0;border-radius:9px;padding:9px 11px;background:#08b9ff;color:#001018;font-weight:700;white-space:nowrap;";
+
+        notice.querySelector("#cinevaApkClose").style.cssText =
+            "border:0;background:transparent;color:white;font-size:22px;padding:0 3px;opacity:.7;";
+
+        document.body.appendChild(notice);
+
+        notice.querySelector("#cinevaApkDownload").onclick = function () {
+            const link = document.createElement("a");
+            link.href = "./CINEVA.apk";
+            link.download = "CINEVA.apk";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        };
+
+        notice.querySelector("#cinevaApkClose").onclick = function () {
+            notice.remove();
+        };
+
+        setTimeout(function () {
+            if (notice.parentNode) notice.remove();
+        }, 10000);
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", showCinevaAPKNotice);
+    } else {
+        showCinevaAPKNotice();
+    }
+})();
