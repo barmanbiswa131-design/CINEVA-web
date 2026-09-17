@@ -119,6 +119,33 @@ textarea{min-height:100px;resize:vertical}
 @media(max-width:900px){.dashboardStats{grid-template-columns:repeat(2,1fr)}.dashboardTwo{grid-template-columns:1fr}}
 @media(max-width:600px){.dashboardStats{grid-template-columns:1fr 1fr}.dashValue{font-size:24px}.dashboardCard{padding:14px}}
 
+
+/* ===== CINEVA ULTIMATE ADMIN UI ===== */
+body{background:#070b12!important;color:#edf6ff}
+header{position:fixed!important;left:0;top:0;bottom:0;width:248px;height:auto!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;align-items:stretch!important;padding:22px 14px!important;background:#0a111b!important;border-right:1px solid #203044!important;border-bottom:0!important;z-index:50!important}
+header .logo{font-size:26px!important;padding:4px 10px 24px!important;display:block}
+header #logout{margin-top:auto}
+main#panel{margin-left:248px!important;max-width:none!important;padding:88px 28px 30px!important}
+#panel>.nav{position:fixed;left:248px;right:0;top:0;height:64px;background:#0a111bf2;backdrop-filter:blur(14px);border-bottom:1px solid #203044;z-index:40;display:flex;align-items:center;gap:5px;padding:8px 18px;overflow-x:auto;margin:0}
+#panel>.nav button{background:transparent!important;color:#91a2b6;border-radius:9px;padding:9px 12px;font-size:12px}
+#panel>.nav button:hover,#panel>.nav button.active{background:#12304a!important;color:#fff}
+.section{max-width:1450px;margin:auto}
+.card{background:#0e1621!important;border-color:#203044!important;box-shadow:0 8px 28px #0002}
+.grid{gap:14px}
+.stat{background:linear-gradient(145deg,#111d2a,#0d141e)!important;border-color:#26384c!important}
+button{background:#159bea}
+button.gray{background:#182433}
+.movie{border-color:#1d2a39!important}
+.pageTitleBar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modernGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.modernStat{padding:17px;border-radius:15px;background:linear-gradient(145deg,#111d2a,#0d141e);border:1px solid #24364a}
+.modernStat .label{color:#8798ac;font-size:12px}.modernStat .value{font-size:27px;font-weight:800;margin-top:9px}
+.modernLayout{display:grid;grid-template-columns:1.45fr 1fr;gap:14px}
+.modernList>div{padding:12px 0;border-bottom:1px solid #1d2a39}
+.miniNav{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.miniNav button{text-align:left;background:#162334}
+@media(max-width:900px){header{transform:translateX(-100%);transition:.2s}body.adminMenuOpen header{transform:translateX(0)}main#panel{margin-left:0!important;padding-left:15px;padding-right:15px}.modernGrid{grid-template-columns:repeat(2,1fr)}#panel>.nav{left:0}}
+@media(max-width:560px){.modernGrid{grid-template-columns:1fr}.modernLayout{grid-template-columns:1fr}}
+
 </style>
 </head>
 
@@ -143,18 +170,23 @@ textarea{min-height:100px;resize:vertical}
 <main id="panel">
 
 <div class="nav">
- <button data-tab="dashboard">Dashboard</button>
- <button data-tab="movies">Movies</button>
- <button data-tab="home">Home Control</button>
- <button data-tab="genres">Genres</button>
- <button data-tab="users">Users</button>
- <button data-tab="announcements">Announcements</button>
- <button data-tab="settings">Settings</button>
-<button data-tab="series">Series</button>
-<button data-tab="users">Users</button>
-<button data-tab="support">Customer Service</button>
-<button data-tab="reports">Reports</button>
-<button data-tab="storage">Storage</button>
+<button data-tab="dashboard">⌂ Dashboard</button>
+<button data-tab="movies">🎬 Movies</button>
+<button data-tab="series">📺 Series</button>
+<button data-tab="episodes">▶ Episodes</button>
+<button data-tab="home">⌂ Home Control</button>
+<button data-tab="genres">▦ Genres</button>
+<button data-tab="users">👥 Users</button>
+<button data-tab="premium">💎 Premium</button>
+<button data-tab="coins">🪙 Coins</button>
+<button data-tab="announcements">📢 Notifications</button>
+<button data-tab="support">🎫 Support</button>
+<button data-tab="reports">🚨 Reports</button>
+<button data-tab="analytics">📊 Analytics</button>
+<button data-tab="media">🖼 Media</button>
+<button data-tab="config">⚙ App Config</button>
+<button data-tab="security">🔐 Security</button>
+<button data-tab="settings">Settings</button>
 </div>
 
 
@@ -687,6 +719,40 @@ URL mode works without Firebase Storage. Upload mode is ready for Firebase Stora
 
 </main>
 
+
+
+<section id="premium" class="section">
+<div class="pageTitleBar"><div><h2>💎 Premium</h2><div class="small">Subscription overview and premium controls</div></div></div>
+<div class="modernGrid"><div class="modernStat"><div class="label">Premium Users</div><div class="value" id="premiumUsers">—</div></div><div class="modernStat"><div class="label">Active Plans</div><div class="value">3</div></div><div class="modernStat"><div class="label">Expiring Soon</div><div class="value">—</div></div><div class="modernStat"><div class="label">Revenue</div><div class="value">—</div></div></div>
+<div class="card" style="margin-top:14px"><h3>Plans</h3><div class="modernList"><div>Free <span class="badge">ACTIVE</span></div><div>Monthly Premium <span class="badge">READY</span></div><div>Yearly Premium <span class="badge">READY</span></div></div></div>
+</section>
+
+<section id="coins" class="section">
+<div class="pageTitleBar"><div><h2>🪙 Coins & Rewards</h2><div class="small">Central reward rules for CINEVA users</div></div></div>
+<div class="modernGrid"><div class="modernStat"><div class="label">Coins Distributed</div><div class="value" id="coinDistributed">—</div></div><div class="modernStat"><div class="label">Coins Used</div><div class="value">—</div></div><div class="modernStat"><div class="label">Reward Users</div><div class="value">—</div></div><div class="modernStat"><div class="label">Daily Tasks</div><div class="value">3</div></div></div>
+<div class="card" style="margin-top:14px"><h3>Daily Tasks</h3><div class="modernList"><div>Watch a movie <b>+10</b></div><div>Add to My List <b>+5</b></div><div>Daily login <b>+5</b></div></div></div>
+</section>
+
+<section id="analytics" class="section">
+<div class="pageTitleBar"><div><h2>📊 Analytics</h2><div class="small">Real recorded counters only</div></div></div>
+<div class="modernGrid"><div class="modernStat"><div class="label">Movies</div><div class="value" id="anMovies">—</div></div><div class="modernStat"><div class="label">Series</div><div class="value" id="anSeries">—</div></div><div class="modernStat"><div class="label">Views</div><div class="value" id="anViews">—</div></div><div class="modernStat"><div class="label">Active Users</div><div class="value" id="anActive">—</div></div></div>
+<div class="modernLayout" style="margin-top:14px"><div class="card"><h3>User Activity</h3><div id="analyticsChart" class="chartBars"></div></div><div class="card"><h3>Top Content</h3><div id="topContent" class="modernList"></div></div></div>
+</section>
+
+<section id="media" class="section">
+<div class="pageTitleBar"><div><h2>🖼 Media Library</h2><div class="small">Upload media and copy URLs</div></div></div>
+<div class="modernLayout"><div class="card"><h3>Poster</h3><input id="mediaPoster" type="file" accept="image/*"><button onclick="uploadModernMedia('mediaPoster','posters','mediaPosterOut')">Upload</button><div id="mediaPosterOut" class="message"></div></div><div class="card"><h3>Backdrop</h3><input id="mediaBackdrop" type="file" accept="image/*"><button onclick="uploadModernMedia('mediaBackdrop','backdrops','mediaBackdropOut')">Upload</button><div id="mediaBackdropOut" class="message"></div></div></div>
+</section>
+
+<section id="config" class="section">
+<div class="pageTitleBar"><div><h2>⚙ App Configuration</h2><div class="small">Central settings for Web + Android</div></div></div>
+<div class="card"><div class="row"><input id="cfgMin" placeholder="Minimum versionCode"><input id="cfgLatest" placeholder="Latest versionCode"><input id="cfgApk" placeholder="APK URL"><input id="cfgQuality" placeholder="Default video quality"></div><label class="check"><input id="cfgMaintenance" type="checkbox"> Maintenance mode</label><label class="check"><input id="cfgForce" type="checkbox"> Force update</label><button id="cfgSave">Save Configuration</button><div id="cfgMsg" class="message"></div></div>
+</section>
+
+<section id="security" class="section">
+<div class="pageTitleBar"><div><h2>🔐 Security & Roles</h2><div class="small">Keep administrative access controlled</div></div></div>
+<div class="card"><div class="tableWrap"><table class="table"><thead><tr><th>Role</th><th>Content</th><th>Users</th><th>Support</th><th>Settings</th></tr></thead><tbody><tr><td>Super Admin</td><td>Full</td><td>Full</td><td>Full</td><td>Full</td></tr><tr><td>Content Manager</td><td>Full</td><td>View</td><td>—</td><td>—</td></tr><tr><td>Support Agent</td><td>View</td><td>View</td><td>Full</td><td>—</td></tr><tr><td>Moderator</td><td>Moderate</td><td>View</td><td>—</td><td>—</td></tr></tbody></table></div></div>
+</section>
 
 <script type="module">
 
@@ -2091,6 +2157,17 @@ window.openTab=function(id){
 
 console.log("CINEVA Complete Admin System loaded.");
 
+</script>
+
+
+<script type="module">
+window.uploadModernMedia=async(input,folder,out)=>{
+ const f=document.getElementById(input).files[0]; if(!f)return;
+ const rr=ref(storage,folder+"/"+Date.now()+"_"+f.name.replace(/[^a-zA-Z0-9._-]/g,"_"));
+ const task=uploadBytesResumable(rr,f);
+ task.on("state_changed",s=>document.getElementById(out).textContent=Math.round(s.bytesTransferred/s.totalBytes*100)+"%",e=>document.getElementById(out).textContent=e.message,async()=>{const u=await getDownloadURL(task.snapshot.ref);document.getElementById(out).textContent="Uploaded • URL copied";navigator.clipboard?.writeText(u)});
+};
+$("cfgSave").onclick=async()=>{await setDoc(doc(db,"settings","app"),{minVersion:$("cfgMin").value.trim(),latestVersion:$("cfgLatest").value.trim(),apkUrl:$("cfgApk").value.trim(),defaultQuality:$("cfgQuality").value.trim(),maintenance:$("cfgMaintenance").checked,forceUpdate:$("cfgForce").checked,updatedAt:serverTimestamp()},{merge:true});$("cfgMsg").textContent="Configuration saved."};
 </script>
 
 </body>
