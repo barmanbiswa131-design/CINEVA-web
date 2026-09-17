@@ -32,6 +32,10 @@ import com.google.android.gms.common.api.ApiException;
 
 public class MainActivity extends Activity {
 
+    boolean isSplashShowing = true;
+
+    ExoPlayer loginBgPlayer;
+
     final int BG = Color.rgb(8,10,16);
     final int PANEL = Color.rgb(22,25,34);
     final int PANEL2 = Color.rgb(30,34,45);
@@ -440,9 +444,12 @@ public class MainActivity extends Activity {
                 }
 
                 runOnUiThread(() -> {
-                    // Home refresh only after login.
-                    if (auth != null && auth.getCurrentUser() != null) {
-                        showHome();
+                    // Do not interrupt the intro splash.
+                    // Home will open only after the intro video ends.
+                    if (!isSplashShowing) {
+                        if (auth != null && auth.getCurrentUser() != null) {
+                            showHome();
+                        }
                     }
                 });
             })
@@ -549,27 +556,68 @@ public class MainActivity extends Activity {
 
     void showSplash() {
 
-        LinearLayout splash = new LinearLayout(this);
-        splash.setOrientation(LinearLayout.VERTICAL);
-        splash.setGravity(Gravity.CENTER);
-        splash.setBackgroundColor(Color.rgb(15,19,29));
+        FrameLayout splash = new FrameLayout(this);
+        splash.setBackgroundColor(Color.BLACK);
 
-        TextView l = center("cineva",52,BLUE,true); l.setIncludeFontPadding(true);
-        splash.addView(l,new LinearLayout.LayoutParams(-1,150));
+        PlayerView introView = new PlayerView(this);
+        introView.setUseController(false);
+        introView.setResizeMode(
+            androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+        );
 
-        TextView spin = center("◌",28,GRAY,false);
-        splash.addView(spin,new LinearLayout.LayoutParams(-1,dp(65)));
+        splash.addView(
+            introView,
+            new FrameLayout.LayoutParams(-1,-1)
+        );
+
+        ExoPlayer introPlayer =
+            new ExoPlayer.Builder(this).build();
+
+        introView.setPlayer(introPlayer);
+
+        introPlayer.setVolume(0f);
+
+        MediaItem introItem =
+            MediaItem.fromUri(
+                "android.resource://" +
+                getPackageName() +
+                "/" +
+                R.raw.cineva_intro
+            );
+
+        introPlayer.setMediaItem(introItem);
+        introPlayer.prepare();
+        introPlayer.play();
 
         setContentView(splash);
         applySystemInsets(splash);
 
-        new Handler().postDelayed(() -> {
-            if (auth != null && auth.getCurrentUser() != null) {
-                showHome();
-            } else {
-                showLogin();
+        introPlayer.addListener(
+            new androidx.media3.common.Player.Listener() {
+
+                @Override
+                public void onPlaybackStateChanged(int state) {
+
+                    if (state ==
+                        androidx.media3.common.Player.STATE_ENDED) {
+
+                        introPlayer.release();
+
+                        isSplashShowing = false;
+
+                        if (auth != null &&
+                            auth.getCurrentUser() != null) {
+
+                            showHome();
+
+                        } else {
+
+                            showLogin();
+                        }
+                    }
+                }
             }
-        },1200);
+        );
     }
 
 
@@ -578,11 +626,55 @@ public class MainActivity extends Activity {
         screenHistory.clear();
         currentScreen = "login";
 
+        FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(BG);
+
+        // Cinematic background video
+        PlayerView bgPlayerView = new PlayerView(this);
+        bgPlayerView.setUseController(false);
+        bgPlayerView.setResizeMode(
+            androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+        );
+
+        FrameLayout.LayoutParams videoLp =
+            new FrameLayout.LayoutParams(-1, -1);
+
+        root.addView(bgPlayerView, videoLp);
+
+        loginBgPlayer = new ExoPlayer.Builder(this).build();
+        ExoPlayer bgPlayer = loginBgPlayer;
+        bgPlayerView.setPlayer(bgPlayer);
+        bgPlayer.setVolume(0f);
+
+        MediaItem backgroundVideo =
+            MediaItem.fromUri(
+                "android.resource://" + getPackageName() + "/" + R.raw.cineva_bg1
+            );
+
+        bgPlayer.setMediaItem(backgroundVideo);
+        bgPlayer.setRepeatMode(
+            androidx.media3.common.Player.REPEAT_MODE_ONE
+        );
+        bgPlayer.prepare();
+        bgPlayer.play();
+
+        // Dark overlay for readable login UI
+        View darkOverlay = new View(this);
+        darkOverlay.setBackgroundColor(
+            Color.argb(125, 0, 0, 0)
+        );
+
+        root.addView(
+            darkOverlay,
+            new FrameLayout.LayoutParams(-1, -1)
+        );
+
+        // Login content
         LinearLayout c = new LinearLayout(this);
         c.setOrientation(LinearLayout.VERTICAL);
         c.setGravity(Gravity.CENTER);
         c.setPadding(30,30,30,30);
-        c.setBackgroundColor(BG);
+        c.setBackgroundColor(Color.TRANSPARENT);
 
         TextView logoText =
             center("cineva",42,BLUE,true);
@@ -659,8 +751,13 @@ public class MainActivity extends Activity {
             new LinearLayout.LayoutParams(-1,dp(50))
         );
 
-        setContentView(c);
-        applySystemInsets(c);
+        FrameLayout.LayoutParams contentLp =
+            new FrameLayout.LayoutParams(-1,-1);
+
+        root.addView(c,contentLp);
+
+        setContentView(root);
+        applySystemInsets(root);
     }
 
     void startGoogleLogin() {
