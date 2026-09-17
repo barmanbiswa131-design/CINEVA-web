@@ -2192,5 +2192,49 @@ $("cinevaEpSave").onclick=async()=>{
 };
 const baseOpenTab=window.openTab;
 window.openTab=async id=>{await baseOpenTab(id);if(id==="episodes")loadModernEpisodes();if(id==="premium")loadDashboard().then(()=>set("premiumUsers",document.getElementById("dPremium")?.textContent||"—"));if(id==="coins")set("coinDistributed",document.getElementById("dCoins")?.textContent||"—");if(id==="analytics"){await loadAnalytics();set("anMovies",movies.length);set("anSeries",series.length);set("anViews",(movies.reduce((a,x)=>a+num(x.views),0)+series.reduce((a,x)=>a+num(x.views),0)).toLocaleString())}};
-</script></body>
+</script><script>
+<!-- ADMIN PHONE BACK NAVIGATION -->
+(function(){
+  let adminNavReady=false;
+  let ignoreNext=false;
+  const originalOpenTab=window.openTab;
+  window.openTab=function(id){
+    if(adminNavReady && !ignoreNext){
+      const current=document.querySelector('.section.active, section.active');
+      const currentId=current?.id;
+      if(currentId && currentId!==id) history.pushState({cinevaAdmin:true,tab:id},'', '#admin-'+id);
+      else if(!currentId) history.replaceState({cinevaAdmin:true,tab:id},'', '#admin-'+id);
+    }
+    ignoreNext=true;
+    try { return originalOpenTab(id); }
+    finally { setTimeout(()=>ignoreNext=false,0); }
+  };
+  function currentTab(){
+    const hash=location.hash.match(/^#admin-(.+)$/);
+    return hash ? hash[1] : null;
+  }
+  function activateFromHistory(){
+    const id=currentTab();
+    if(!id) return;
+    ignoreNext=true;
+    try { originalOpenTab(id); } finally { setTimeout(()=>ignoreNext=false,0); }
+  }
+  function init(){
+    const first=document.querySelector('section.active, section[style*="display: block"]');
+    const firstId=first?.id || 'dashboard';
+    history.replaceState({cinevaAdmin:true,tab:firstId},'', '#admin-'+firstId);
+    adminNavReady=true;
+    window.addEventListener('popstate',function(e){
+      if(e.state && e.state.cinevaAdmin){ activateFromHistory(); }
+      else {
+        history.pushState({cinevaAdmin:true,tab:firstId},'', '#admin-'+firstId);
+        activateFromHistory();
+      }
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+</script>
+</body>
 </html>
