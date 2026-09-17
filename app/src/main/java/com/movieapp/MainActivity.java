@@ -1,5 +1,6 @@
 package com.movieapp;
 
+
 import android.app.*;
 import android.os.*;
 import android.content.*;
@@ -120,10 +121,133 @@ public class MainActivity extends Activity {
         googleClient =
             GoogleSignIn.getClient(this, googleOptions);
 
+        checkForMandatoryUpdate();
+
         loadFirebaseMovies();
 
         showSplash();
     }
+
+
+    void checkForMandatoryUpdate() {
+        new Thread(() -> {
+            try {
+                URL url = new URL(
+                    "https://barmanbiswa131-design.github.io/CINEVA-web/version.json"
+                );
+
+                java.net.HttpURLConnection conn =
+                    (java.net.HttpURLConnection) url.openConnection();
+
+                conn.setConnectTimeout(7000);
+                conn.setReadTimeout(7000);
+                conn.setRequestMethod("GET");
+
+                java.io.InputStream in = conn.getInputStream();
+                java.util.Scanner scanner =
+                    new java.util.Scanner(in).useDelimiter("\\A");
+
+                String jsonText =
+                    scanner.hasNext() ? scanner.next() : "";
+
+                scanner.close();
+                in.close();
+                conn.disconnect();
+
+                org.json.JSONObject json =
+                    new org.json.JSONObject(jsonText);
+
+                int latestVersion =
+                    json.getInt("versionCode");
+
+                String apkUrl =
+                    json.getString("apkUrl");
+
+                if (latestVersion > 5) {
+                    runOnUiThread(() ->
+                        showMandatoryUpdate(apkUrl)
+                    );
+                }
+
+            } catch (Exception e) {
+                // If update check fails, allow the app to continue.
+                runOnUiThread(() -> {
+                    if (isSplashShowing) {
+                        showSplash();
+                    }
+                });
+            }
+        }).start();
+    }
+
+
+    void showMandatoryUpdate(String apkUrl) {
+
+    final Dialog dialog = new Dialog(this);
+
+    LinearLayout box = new LinearLayout(this);
+    box.setOrientation(LinearLayout.VERTICAL);
+    box.setPadding(55, 45, 55, 45);
+    box.setBackgroundColor(Color.rgb(8, 12, 24));
+
+    TextView title = new TextView(this);
+    title.setText("CINEVA Update Required");
+    title.setTextColor(Color.WHITE);
+    title.setTextSize(21);
+    title.setGravity(Gravity.CENTER);
+    title.setTypeface(null, android.graphics.Typeface.BOLD);
+
+    TextView message = new TextView(this);
+    message.setText("A new CINEVA update is ready.\n\nUpdate now to continue enjoying CINEVA.");
+    message.setTextColor(Color.LTGRAY);
+    message.setTextSize(15);
+    message.setGravity(Gravity.CENTER);
+    message.setPadding(0, 28, 0, 30);
+
+    Button update = new Button(this);
+    update.setText("UPDATE NOW");
+    update.setTextColor(Color.WHITE);
+    update.setTextSize(14);
+    update.setAllCaps(false);
+    update.setBackgroundColor(Color.rgb(0, 190, 255));
+
+    box.addView(title);
+    box.addView(message);
+    box.addView(update);
+
+    dialog.setContentView(box);
+    dialog.setCancelable(false);
+    dialog.setCanceledOnTouchOutside(false);
+
+    update.setOnClickListener(v -> {
+        Intent intent = new Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse(apkUrl)
+        );
+        startActivity(intent);
+    });
+
+    dialog.show();
+
+    Window window = dialog.getWindow();
+
+    if (window != null) {
+        window.setBackgroundDrawable(
+            new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT)
+        );
+
+        WindowManager.LayoutParams params =
+            window.getAttributes();
+
+        params.width =
+            (int)(getResources().getDisplayMetrics().widthPixels * 0.88);
+
+        params.height =
+            WindowManager.LayoutParams.WRAP_CONTENT;
+
+        window.setAttributes(params);
+    }
+}
 
 
     void loadFeatureData() {
