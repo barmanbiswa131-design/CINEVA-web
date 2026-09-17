@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://barmanbiswa131-design.github.io/CINEVA-web/sitemap.xml
