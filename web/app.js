@@ -2198,3 +2198,19 @@
 
 
 
+
+/* CINEVA APK Download */
+document.addEventListener("click", function (e) {
+    const downloadBtn = e.target.closest('[data-setting="downloads"]');
+    if (!downloadBtn) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    const link = document.createElement("a");
+    link.href = "./CINEVA.apk";
+    link.download = "CINEVA.apk";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+}, true);
