@@ -2330,3 +2330,72 @@ document.addEventListener("click", function (e) {
         showCinevaAPKNotice();
     }
 })();
+
+
+/* CINEVA CENTRAL FIRESTORE SYNC v1 */
+(function(){
+"use strict";
+let cinevaCloudUser=null;
+let cinevaCloudUnsub=null;
+function cloudReady(){return typeof firebase!=="undefined"&&firebase.apps&&firebase.apps.length>0&&firebase.auth&&firebase.firestore;}
+function uid(){const u=cloudReady()?firebase.auth().currentUser:null; return u&&!u.isAnonymous?u.uid:null;}
+async function syncUser(){
+ if(!cloudReady()) return;
+ const u=firebase.auth().currentUser;
+ if(!u){ if(cinevaCloudUnsub){cinevaCloudUnsub();cinevaCloudUnsub=null;} return; }
+ cinevaCloudUser=u;
+ const ref=firebase.firestore().collection("users").doc(u.uid);
+ try{
+  await ref.set({uid:u.uid,email:u.email||"",displayName:u.displayName||(u.email?u.email.split("@")[0]:"Guest"),provider:u.isAnonymous?"anonymous":"firebase",lastActive:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+ }catch(e){console.warn("CINEVA user sync",e);}
+ if(cinevaCloudUnsub) cinevaCloudUnsub();
+ cinevaCloudUnsub=ref.onSnapshot(s=>{
+  const d=s.exists?s.data():{};
+  const list=Array.isArray(d.myList)?d.myList:[];
+  localStorage.setItem("cineva_cloud_mylist",JSON.stringify(list));
+  if(typeof d.coins==="number") localStorage.setItem("cineva_cloud_coins",String(d.coins));
+  if(typeof d.premiumActive==="boolean") localStorage.setItem("cineva_cloud_premium",d.premiumActive?"1":"0");
+ });
+}
+async function cloudUserPatch(patch){
+ const id=uid(); if(!id) return;
+ try{await firebase.firestore().collection("users").doc(id).set(patch,{merge:true});}catch(e){console.warn("CINEVA cloud write",e);}
+}
+function cloudList(){try{return JSON.parse(localStorage.getItem("cineva_cloud_mylist")||"[]");}catch(e){return[];}}
+window.cinevaCloudToggleList=async function(title){
+ if(!title||!uid()) return;
+ const list=cloudList(); const i=list.indexOf(title);
+ if(i>=0) list.splice(i,1); else list.unshift(title);
+ localStorage.setItem("cineva_cloud_mylist",JSON.stringify(list));
+ await cloudUserPatch({myList:list,myListUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+ if(typeof window.showMyList==="function") window.showMyList();
+};
+window.cinevaCloudGetList=function(){return cloudList();};
+window.cinevaCloudState=function(){return {coins:Number(localStorage.getItem("cineva_cloud_coins")||0),premium:localStorage.getItem("cineva_cloud_premium")==="1"};};
+window.cinevaCloudAddCoins=async function(amount){
+ const id=uid(); if(!id||!Number(amount)) return;
+ const current=window.cinevaCloudState().coins; const next=current+Number(amount);
+ localStorage.setItem("cineva_cloud_coins",String(next));
+ await cloudUserPatch({coins:next,coinsUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+};
+window.cinevaCloudSetPremium=async function(active){
+ if(!uid()) return; localStorage.setItem("cineva_cloud_premium",active?"1":"0");
+ await cloudUserPatch({premiumActive:!!active,premiumUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+};
+window.cinevaCloudLoadAppSettings=async function(){
+ if(!cloudReady()) return;
+ try{const s=await firebase.firestore().collection("settings").doc("app").get(); if(s.exists) window.cinevaAppSettings=s.data()||{};}catch(e){console.warn("CINEVA app settings",e);}
+};
+window.addEventListener("cineva-auth-ready",syncUser);
+if(cloudReady()) firebase.auth().onAuthStateChanged(async function(){await syncUser();await window.cinevaCloudLoadAppSettings();});
+const oldShowMyList=window.showMyList;
+window.showMyList=function(){
+ const list=cloudList();
+ const page=document.getElementById("mylist"); if(!page){if(oldShowMyList) oldShowMyList(); return;}
+ page.innerHTML='<div class="page-title"><h1>My List</h1><p>Movies and series you saved</p></div>';
+ if(!list.length){page.innerHTML+='<div class="empty"><div>＋</div><h2>Your list is empty</h2><p>Add movies and series to watch later.</p></div>';return;}
+ const grid=document.createElement("div"); grid.className="grid cineva-cloud-mylist";
+ list.forEach(title=>{const m=(window.cinevaMovies||[]).find(x=>x.title===title)||(window.cinevaSeries||[]).find(x=>x.title===title); if(!m)return; const card=document.createElement("article");card.className="movie-card";card.innerHTML='<div class="poster" style="background-image:url(\\''+escapeHTML(m.posterUrl||"")+'\\')"></div><b>'+escapeHTML(m.title||"Untitled")+'</b><small>'+escapeHTML(m.year||"")+'</small>';card.onclick=()=>m.videoUrl?window.showFirebaseMovie(m):window.showFirebaseSeries&&window.showFirebaseSeries(m);grid.appendChild(card);});
+ page.appendChild(grid);
+};
+})();
