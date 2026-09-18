@@ -917,7 +917,7 @@ $("login").style.display="none";
 $("panel").style.display="block";
 $("logout").style.display="block";
 
-$("adminStatus").textContent="● "+(user.email||"Admin");
+$("adminStatus").textContent="● "+(user.email||"Admin")+" • "+(user.emailVerified?"Verified":"Email not verified");
 
 loadAll();
 
@@ -1738,7 +1738,19 @@ if(modernSave)modernSave.onclick=()=>saveEpisode(true);
 /* USERS */
 
 async function loadUsers(){
+    const box=$("userMsg");
     try{
+        const current=auth.currentUser;
+
+        if(!current){
+            throw new Error("Admin is not signed in.");
+        }
+
+        if(box){
+            box.className="message";
+            box.innerHTML="<div class='message'>Loading users from Firestore…</div>";
+        }
+
         const snap=await getDocs(collection(db,"users"));
         const arr=[];
 
@@ -1760,9 +1772,20 @@ async function loadUsers(){
         `).join("")
         :"<div class='empty'>No user records found.</div>";
 
+        if(box){
+            box.className="message success";
+            box.textContent=arr.length+" user record"+(arr.length===1?"":"s")+" loaded.";
+        }
+
     }catch(e){
-        $("userMsg").innerHTML=
-        `<div class="error">${escapeHtml(e.message)}</div>`;
+        const code=e?.code||"unknown";
+        const message=e?.message||String(e);
+        if(box){
+            box.className="message error";
+            box.innerHTML=`<div class="error">Users load failed [${escapeHtml(code)}]: ${escapeHtml(message)}</div>`;
+        }
+        console.error("CINEVA Users load failed:",e);
+        throw e;
     }
 }
 
@@ -2221,6 +2244,11 @@ window.loadSupport=loadSupport;
 window.loadReports=loadReports;
 window.loadEpisodes=loadEpisodes;
 window.loadDashboard=loadDashboard;
+window.getCinevaAdminAuthStatus=()=>({
+    email:auth.currentUser?.email||"",
+    emailVerified:!!auth.currentUser?.emailVerified,
+    uid:auth.currentUser?.uid||""
+});
 
 /* Make Dashboard the first-class live page. */
 const dashboardTabBase=window.openTab;
