@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "496503778333",
+    "project_id": "cineva-admin",
+    "storage_bucket": "cineva-admin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:496503778333:android:595516b128b749173baaf4",
+        "android_client_info": {
+          "package_name": "com.movieapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "496503778333-p6hf4eshcj7d9k8r16a4c24ptb0ff81i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.movieapp",
+            "certificate_hash": "ed961d86b49b31df43e7534c5c35c466cb9bc91e"
+          }
+        },
+        {
+          "client_id": "496503778333-9spog0b2ocel0odv6mjritofifv39p5i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0y_sd0DWNOILnajs-DRpjUm5tE3Gtt3Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "496503778333-9spog0b2ocel0odv6mjritofifv39p5i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
