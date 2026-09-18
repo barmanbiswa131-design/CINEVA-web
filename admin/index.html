@@ -2370,19 +2370,19 @@ $("cfgSave").onclick=async()=>{
     btn.textContent="Logging in…";
     if(msg){msg.className="message";msg.textContent="Connecting to Firebase…";}
     try{
-      const [{initializeApp},{getAuth,signInWithEmailAndPassword}]=await Promise.all([
+      const [{initializeApp,getApps,getApp},{getAuth,signInWithEmailAndPassword}]=await Promise.all([
         import("https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js"),
         import("https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js")
       ]);
-      const loginApp=initializeApp({
-        apiKey:"AIzaSyAfXYOk6euvJHY5jpbl3y0JYxw_OnjC2wc",
+      const loginApp=getApps().length ? getApp() : initializeApp({
+        apiKey:"AIzaSyAfXYOK6euvJHY5jpbl3y0JYxw_OnjC2wc",
         authDomain:"cineva-admin.firebaseapp.com",
         projectId:"cineva-admin",
         storageBucket:"cineva-admin.firebasestorage.app",
         messagingSenderId:"496503778333",
         appId:"1:496503778333:web:58d1e90513d2c9fa3baaf4",
         measurementId:"G-M8TCQB3XXS"
-      },"CINEVA_LOGIN");
+      });
       const loginAuth=getAuth(loginApp);
       await signInWithEmailAndPassword(loginAuth,email,password);
       if(msg){msg.className="message success";msg.textContent="Login successful. Opening Admin…";}
