@@ -891,7 +891,7 @@ if(id==="announcements" && window.loadAnnouncements) window.loadAnnouncements();
 if(id==="support" && window.loadSupport) window.loadSupport();
 if(id==="reports" && window.loadReports) window.loadReports();
 if(id==="settings" && window.loadSettings) window.loadSettings();
-if(id==="analytics" && window.loadAnalytics) window.loadAnalytics();
+
 
 };
 
@@ -1608,16 +1608,6 @@ let supportTickets=[];
 let reportsData=[];
 
 const storage=getStorage(app);
-
-const originalOpenTab=window.openTab;
-window.openTab=function(id){
-    originalOpenTab(id);
-
-    if(id==="series") loadSeries();
-    if(id==="users") loadUsers();
-    if(id==="support") loadSupport();
-    if(id==="reports") loadReports();
-};
 
 async function loadSeries(){
     try{
