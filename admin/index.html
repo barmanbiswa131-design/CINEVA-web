@@ -2168,6 +2168,21 @@ async function loadDashboard(){
 
         dashSet("dashDownloads","—");
 
+        const failedReads=names.filter(name=>!byName[name].ok);
+        if(msg){
+            if(failedReads.length){
+                const details=failedReads.map(name=>{
+                    const e=byName[name].error;
+                    return name+" ["+(e?.code||"unknown")+"]: "+(e?.message||String(e));
+                }).join(" | ");
+                msg.className="message error";
+                msg.textContent="Firestore read problems: "+details;
+            }else{
+                msg.className="message success";
+                msg.textContent="Dashboard data loaded successfully.";
+            }
+        }
+
         let coinTotal=null;
         if(coinsResult.ok){
             let sum=0;
@@ -2298,7 +2313,15 @@ window.loadAnalytics=async function(){
   }
   const top=$("topContent");
   if(top){const all=movies.concat(sr).sort((a,b)=>dashNum(b.views??b.viewCount??b.plays)-dashNum(a.views??a.viewCount??a.plays)).slice(0,8);top.innerHTML=all.length?all.map(x=>'<div class="activityItem"><div><div class="activityText">'+escapeHtml(x.title||"Untitled")+'</div><div class="activityTime">'+dashNum(x.views??x.viewCount??x.plays).toLocaleString()+' views</div></div></div>').join(""):'<div class="empty">No viewing counters recorded.</div>';}
- }catch(e){dashSet("anMovies","—");dashSet("anSeries","—");dashSet("anViews","—");dashSet("anActive","—");}
+ }catch(e){
+  dashSet("anMovies","—");dashSet("anSeries","—");dashSet("anViews","—");dashSet("anActive","—");
+  const box=$("analyticsMsg");
+  if(box){
+   box.className="message error";
+   box.textContent="Analytics load failed: "+(e?.code?("["+e.code+"] "):"")+(e?.message||String(e));
+  }
+  console.error("CINEVA Analytics load failed:",e);
+ }
 };
 </script>
 
