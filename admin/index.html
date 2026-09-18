@@ -856,17 +856,29 @@ const $=id=>document.getElementById(id);
 
 window.openTab=function(id){
 
+const section=$(id);
+if(!section)return;
+
 document.querySelectorAll(".section")
 .forEach(x=>x.classList.remove("active"));
 
-$(id).classList.add("active");
+section.classList.add("active");
 
-if(id==="dashboard") updateDashboard();
-loadDashboard();
-if(id==="home") loadHome();
-if(id==="genres") loadGenres();
-if(id==="announcements") loadAnnouncements();
-if(id==="settings") loadSettings();
+if(id==="dashboard"){
+    updateDashboard();
+    if(window.loadDashboard) window.loadDashboard();
+}
+if(id==="movies" && window.loadMovies) window.loadMovies();
+if(id==="series" && window.loadSeries) window.loadSeries();
+if(id==="users" && window.loadUsers) window.loadUsers();
+if(id==="episodes" && window.fillEpisodeSeries) window.fillEpisodeSeries();
+if(id==="genres" && window.loadGenres) window.loadGenres();
+if(id==="home" && window.loadHome) window.loadHome();
+if(id==="announcements" && window.loadAnnouncements) window.loadAnnouncements();
+if(id==="support" && window.loadSupport) window.loadSupport();
+if(id==="reports" && window.loadReports) window.loadReports();
+if(id==="settings" && window.loadSettings) window.loadSettings();
+if(id==="analytics" && window.loadAnalytics) window.loadAnalytics();
 
 };
 
@@ -927,13 +939,18 @@ async function loadAll(){
         ["Support",loadSupport],["Reports",loadReports],["Announcements",loadAnnouncements],
         ["Settings",loadSettings],["Home",loadHome]
     ];
+
     const results=await Promise.allSettled(jobs.map(([,fn])=>fn()));
     const failed=results.map((r,i)=>r.status==="rejected"?jobs[i][0]:null).filter(Boolean);
-    updateDashboard();
+
     if(window.loadDashboard) await window.loadDashboard();
+
     if(failed.length){
         const el=$("dashboardMsg");
-        if(el){el.className="message error";el.textContent="Some sections could not load: "+failed.join(", ");}
+        if(el){
+            el.className="message error";
+            el.textContent="Some sections could not load: "+failed.join(", ");
+        }
     }
 }
 
@@ -1995,33 +2012,49 @@ function dashSet(id,value){
 }
 
 async function loadDashboard(){
+    const msg=$("dashboardMsg");
+    if(msg){
+        msg.className="message";
+        msg.textContent="Loading live Firestore data…";
+    }
+
+    const readWithTimeout=async(name,ms=10000)=>{
+        try{
+            const snap=await Promise.race([
+                getDocs(collection(db,name)),
+                new Promise((_,reject)=>setTimeout(()=>reject(new Error("Timed out after "+Math.round(ms/1000)+"s")),ms))
+            ]);
+            const rows=[];
+            snap.forEach(x=>rows.push({id:x.id,...x.data()}));
+            return {ok:true,rows};
+        }catch(error){
+            return {ok:false,rows:[],error};
+        }
+    };
+
     try{
-        const [usersSnap,seriesSnap,ticketSnap,reportSnap]=await Promise.allSettled([
-            getDocs(collection(db,"users")),
-            getDocs(collection(db,"series")),
-            getDocs(collection(db,"supportTickets")),
-            getDocs(collection(db,"reports"))
-        ]);
+        const names=["movies","users","series","supportTickets","reports","coinTransactions"];
+        const results=await Promise.all(names.map(name=>readWithTimeout(name)));
 
-        const users=[];
-        if(usersSnap.status==="fulfilled"){
-            usersSnap.value.forEach(x=>users.push({id:x.id,...x.data()}));
+        const byName={};
+        names.forEach((name,i)=>byName[name]=results[i]);
+
+        const moviesResult=byName.movies;
+        const usersResult=byName.users;
+        const seriesResult=byName.series;
+        const ticketsResult=byName.supportTickets;
+        const reportsResult=byName.reports;
+        const coinsResult=byName.coinTransactions;
+
+        if(moviesResult.ok){
+            movies=moviesResult.rows;
+            if(typeof renderMovies==="function" && $("movieList")) renderMovies();
         }
 
-        const series=[];
-        if(seriesSnap.status==="fulfilled"){
-            seriesSnap.value.forEach(x=>series.push({id:x.id,...x.data()}));
-        }
-
-        const tickets=[];
-        if(ticketSnap.status==="fulfilled"){
-            ticketSnap.value.forEach(x=>tickets.push({id:x.id,...x.data()}));
-        }
-
-        const reports=[];
-        if(reportSnap.status==="fulfilled"){
-            reportSnap.value.forEach(x=>reports.push({id:x.id,...x.data()}));
-        }
+        const users=usersResult.rows;
+        const series=seriesResult.rows;
+        const tickets=ticketsResult.rows;
+        const reports=reportsResult.rows;
 
         const now=new Date();
         const dayMs=86400000;
@@ -2050,100 +2083,125 @@ async function loadDashboard(){
             return d && (now-d)<=30*dayMs && (now-d)>=0;
         }).length;
 
-        const blocked=users.filter(u=>String(u.status||"").toLowerCase()==="blocked" || u.blocked===true).length;
-        const premium=users.filter(u=>u.premiumActive===true || u.premium===true || String(u.subscriptionStatus||"").toLowerCase()==="active").length;
+        const blocked=users.filter(u=>
+            String(u.status||"").toLowerCase()==="blocked" || u.blocked===true
+        ).length;
 
-        const movieViews=movies.reduce((s,m)=>s+dashNum(m.views??m.viewCount??m.plays),0);
+        const premium=users.filter(u=>
+            u.premiumActive===true ||
+            u.premium===true ||
+            String(u.subscriptionStatus||"").toLowerCase()==="active"
+        ).length;
+
+        const movieRows=moviesResult.ok?moviesResult.rows:[];
+        const movieViews=movieRows.reduce((s,m)=>s+dashNum(m.views??m.viewCount??m.plays),0);
         const seriesViews=series.reduce((s,m)=>s+dashNum(m.views??m.viewCount??m.plays),0);
 
-        const openTickets=tickets.filter(x=>!["resolved","closed"].includes(String(x.status||"open").toLowerCase())).length;
-        const pendingReports=reports.filter(x=>!["resolved","closed","rejected"].includes(String(x.status||"open").toLowerCase())).length;
+        const openTickets=tickets.filter(x=>
+            !["resolved","closed"].includes(String(x.status||"open").toLowerCase())
+        ).length;
 
-        dashSet("dashTotalUsers",totalUsers);
-        dashSet("dashActiveUsers",activeUsers);
-        dashSet("dashNewUsers",newToday);
-        dashSet("dashNewMeta","Today • "+new7+" in 7d • "+new30+" in 30d");
-        dashSet("dashBlockedUsers",blocked);
-        dashSet("dashPremiumUsers",premium);
-        dashSet("dashMovies",movies.length);
-        dashSet("dashSeries",series.length);
-        dashSet("dashViews",(movieViews+seriesViews).toLocaleString());
-        dashSet("dashTickets",openTickets);
-        dashSet("dashReports",pendingReports);
+        const pendingReports=reports.filter(x=>
+            !["resolved","closed","rejected"].includes(String(x.status||"open").toLowerCase())
+        ).length;
 
-        /* APK download tracking is intentionally not invented.
-           It will use appEvents once Web/App logging is connected. */
+        dashSet("dashTotalUsers",usersResult.ok?totalUsers:"ERR");
+        dashSet("dashActiveUsers",usersResult.ok?activeUsers:"ERR");
+        dashSet("dashNewUsers",usersResult.ok?newToday:"ERR");
+        dashSet("dashNewMeta",usersResult.ok?("Today • "+new7+" in 7d • "+new30+" in 30d"):"Firestore error");
+        dashSet("dashBlockedUsers",usersResult.ok?blocked:"ERR");
+        dashSet("dashPremiumUsers",usersResult.ok?premium:"ERR");
+        dashSet("dashMovies",moviesResult.ok?movieRows.length:"ERR");
+        dashSet("dashSeries",seriesResult.ok?series.length:"ERR");
+        dashSet("dashViews",(moviesResult.ok&&seriesResult.ok)?(movieViews+seriesViews).toLocaleString():"ERR");
+        dashSet("dashTickets",ticketsResult.ok?openTickets:"ERR");
+        dashSet("dashReports",reportsResult.ok?pendingReports:"ERR");
+
         dashSet("dashDownloads","—");
 
-        /* Coin transactions are optional until the real reward system exists. */
         let coinTotal=null;
-        try{
-            const coinSnap=await getDocs(collection(db,"coinTransactions"));
+        if(coinsResult.ok){
             let sum=0;
-            coinSnap.forEach(x=>{
-                const d=x.data();
+            coinsResult.rows.forEach(x=>{
+                const d=x;
                 const amount=d.amount??d.coins??0;
                 if(d.type==="spent" || d.type==="debit") return;
                 sum+=Math.max(0,dashNum(amount));
             });
             coinTotal=sum;
-        }catch(_){}
-        dashSet("dashCoins",coinTotal===null?"—":coinTotal.toLocaleString());
+        }
+        dashSet("dashCoins",coinTotal===null?"ERR":coinTotal.toLocaleString());
 
-        /* 7-day user chart */
         const labels=[];
         const counts=[];
         for(let i=6;i>=0;i--){
             const d=new Date(now.getTime()-i*dayMs);
             labels.push(d.toLocaleDateString(undefined,{weekday:"short"}));
             const count=users.filter(u=>{
-                const c=createdOf(u);
-                return c && c.toDateString()===d.toDateString();
+                const created=createdOf(u);
+                return created && created.toDateString()===d.toDateString();
             }).length;
             counts.push(count);
         }
+
         const max=Math.max(1,...counts);
-        const chart=$( "dashUserChart" );
+        const chart=$("dashUserChart");
         if(chart){
-            chart.innerHTML=counts.map((v,i)=>`
-                <div class="chartBarWrap">
-                    <div class="chartBar" style="height:${Math.max(3,Math.round(v/max*100))}%"></div>
-                    <div class="chartLabel">${labels[i]} · ${v}</div>
-                </div>
-            `).join("");
+            chart.innerHTML=usersResult.ok
+                ?counts.map((v,i)=>`
+                    <div class="chartBarWrap">
+                        <div class="chartBar" style="height:${Math.max(3,Math.round(v/max*100))}%"></div>
+                        <div class="chartLabel">${labels[i]} · ${v}</div>
+                    </div>
+                `).join("")
+                :"<div class='error'>User data could not be loaded.</div>";
         }
 
         const activity=[];
-        if(newToday) activity.push("New users registered today: "+newToday);
-        if(openTickets) activity.push("Open support tickets: "+openTickets);
-        if(pendingReports) activity.push("Reports awaiting review: "+pendingReports);
-        activity.push("Movies in library: "+movies.length);
-        activity.push("Series in library: "+series.length);
+        if(usersResult.ok) activity.push("Users loaded: "+totalUsers);
+        if(moviesResult.ok) activity.push("Movies loaded: "+movieRows.length);
+        if(seriesResult.ok) activity.push("Series loaded: "+series.length);
+        if(ticketsResult.ok) activity.push("Open support tickets: "+openTickets);
+        if(reportsResult.ok) activity.push("Pending reports: "+pendingReports);
 
-        const act=$( "dashActivity" );
+        const errors=names.filter(name=>!byName[name].ok);
+        if(errors.length){
+            activity.push("Firestore issues: "+errors.join(", "));
+        }
+
+        const act=$("dashActivity");
         if(act){
             act.innerHTML=activity.map(x=>`
                 <div class="activityItem">
                     <div class="activityDot"></div>
-                    <div><div class="activityText">${escapeHtml(x)}</div><div class="activityTime">Live dashboard data</div></div>
+                    <div>
+                        <div class="activityText">${escapeHtml(x)}</div>
+                        <div class="activityTime">Live dashboard data</div>
+                    </div>
                 </div>
             `).join("");
         }
 
-        const cs=$( "dashContentStatus" );
+        const cs=$("dashContentStatus");
         if(cs){
-            cs.innerHTML=`
-                <div class="activityItem"><div class="activityDot"></div><div><div class="activityText">Featured movies</div><div class="activityTime">${movies.filter(x=>x.featured).length} active</div></div></div>
-                <div class="activityItem"><div class="activityDot"></div><div><div class="activityText">Trending movies</div><div class="activityTime">${movies.filter(x=>x.trending).length} active</div></div></div>
-                <div class="activityItem"><div class="activityDot"></div><div><div class="activityText">Coming soon</div><div class="activityTime">${movies.filter(x=>x.comingSoon).length} titles</div></div></div>
-            `;
+            cs.innerHTML=moviesResult.ok?`
+                <div class="activityItem"><div class="activityDot"></div><div><div class="activityText">Featured movies</div><div class="activityTime">${movieRows.filter(x=>x.featured).length} active</div></div></div>
+                <div class="activityItem"><div class="activityDot"></div><div><div class="activityText">Trending movies</div><div class="activityTime">${movieRows.filter(x=>x.trending).length} active</div></div></div>
+                <div class="activityItem"><div class="activityDot"></div><div><div class="activityText">Coming soon</div><div class="activityTime">${movieRows.filter(x=>x.comingSoon).length} titles</div></div></div>
+            `:"<div class='error'>Movie collection could not be loaded.</div>";
         }
 
-        const msg=$( "dashboardMsg" );
-        if(msg) msg.textContent="Dashboard refreshed • "+new Date().toLocaleTimeString();
+        if(msg){
+            if(errors.length){
+                msg.className="message error";
+                msg.textContent="Dashboard loaded with issues: "+errors.join(", ");
+            }else{
+                msg.className="message success";
+                msg.textContent="Dashboard refreshed • "+new Date().toLocaleTimeString();
+            }
+        }
 
     }catch(e){
-        const msg=$( "dashboardMsg" );
         if(msg){
             msg.className="message error";
             msg.textContent="Dashboard error: "+e.message;
@@ -2198,21 +2256,3 @@ $("cfgSave").onclick=async()=>{await setDoc(doc(db,"settings","app"),{minVersion
 (function(){
  const originalOpenTab=window.openTab;if(typeof originalOpenTab!=="function")return;
  let restoring=false;
- const getTab=()=>{const m=location.hash.match(/^#admin\/([A-Za-z0-9_-]+)$/);return m?m[1]:"dashboard";};
- const showTab=(id,push)=>{
-  if(!id||!document.getElementById(id))id="dashboard";
-  if(push&&!restoring&&getTab()!==id)history.pushState({cinevaAdminTab:id},"","#admin/"+id);
-  restoring=true;try{originalOpenTab(id);}finally{setTimeout(()=>restoring=false,0);}
-  document.querySelectorAll(".sideItem,.sideSub button").forEach(b=>b.classList.toggle("activeSide",b.dataset.tab===id));
-  if(id==="episodes"&&window.fillEpisodeSeries)window.fillEpisodeSeries();
- };
- const initial=getTab();history.replaceState({cinevaAdminTab:initial},"","#admin/"+initial);
- window.openTab=id=>showTab(id,true);
- window.addEventListener("popstate",()=>showTab(getTab(),false));
- document.querySelectorAll(".cinevaSidebar [data-tab]").forEach(b=>b.addEventListener("click",()=>{showTab(b.dataset.tab,true);if(innerWidth<=900)document.body.classList.remove("adminMenuOpen");}));
- const logout=document.getElementById("logout"),sideLogout=document.getElementById("sideLogout");if(logout&&sideLogout)sideLogout.addEventListener("click",()=>logout.click());
- const menu=document.getElementById("adminMenuBtn");if(menu)menu.addEventListener("click",()=>document.body.classList.toggle("adminMenuOpen"));
-})();
-</script>
-</body>
-</html>
