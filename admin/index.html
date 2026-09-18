@@ -155,6 +155,28 @@ header .logo{display:none!important}.adminTop{display:flex;align-items:center;ga
 main#panel{margin-left:248px!important;padding-top:88px!important}
 @media(max-width:900px){header{left:0!important}.adminTop .topSearch{display:none}#panel>.nav{transform:translateX(-100%);transition:.2s}.adminMenuOpen #panel>.nav{transform:translateX(0)}main#panel{margin-left:0!important}}
 
+
+/* ===== CINEVA SIDEBAR v2 ===== */
+.cinevaSidebar{position:fixed;left:0;top:0;bottom:0;width:248px;background:#09121d;border-right:1px solid #203044;padding:18px 12px;overflow:auto;z-index:70}
+.sideBrand{height:46px;display:flex;align-items:center;gap:10px;padding:0 10px 12px;font-size:22px;font-weight:800;letter-spacing:.3px}
+.brandMark{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:3px solid #29b9ff;color:#29b9ff;font-size:17px}
+.sideItem,.sideGroupTitle{width:100%;border:0!important;background:transparent!important;color:#a8b8c8!important;text-align:left!important;border-radius:9px!important;padding:10px 11px!important;margin:2px 0!important;font-size:13px!important;display:flex;align-items:center;gap:10px}
+.sideItem:hover,.sideGroupTitle:hover,.sideItem.activeSide{background:#10283a!important;color:#fff!important}
+.sideGroupTitle b{margin-left:auto;font-size:12px;color:#6f8498}
+.sideSub{display:none;padding:2px 0 5px 25px}
+.sideGroup.open .sideSub{display:block}
+.sideSub button{width:100%;border:0;background:transparent;color:#7f93a7;text-align:left;border-radius:7px;padding:8px 9px;margin:1px 0;font-size:12px;cursor:pointer}
+.sideSub button:hover{background:#10212f;color:#fff}
+.sideBottom{margin-top:18px;padding-top:14px;border-top:1px solid #1d2a38}
+#panel>.nav{display:none!important}
+main#panel{margin-left:248px!important}
+header{left:248px!important}
+@media(max-width:900px){
+ .cinevaSidebar{transform:translateX(-100%);transition:transform .2s ease}
+ body.adminMenuOpen .cinevaSidebar{transform:translateX(0)}
+ main#panel{margin-left:0!important}
+ header{left:0!important}
+}
 </style>
 </head>
 
@@ -178,25 +200,108 @@ main#panel{margin-left:248px!important;padding-top:88px!important}
 
 <main id="panel">
 
-<div class="nav">
-<button data-tab="dashboard">⌂ Dashboard</button>
-<button data-tab="movies">🎬 Movies</button>
-<button data-tab="series">📺 Series</button>
-<button data-tab="episodes">▶ Episodes</button>
-<button data-tab="home">⌂ Home Control</button>
-<button data-tab="genres">▦ Genres</button>
-<button data-tab="users">👥 Users</button>
-<button data-tab="premium">💎 Premium</button>
-<button data-tab="coins">🪙 Coins</button>
-<button data-tab="announcements">📢 Notifications</button>
-<button data-tab="support">🎫 Support</button>
-<button data-tab="reports">🚨 Reports</button>
-<button data-tab="analytics">📊 Analytics</button>
-<button data-tab="media">🖼 Media</button>
-<button data-tab="config">⚙ App Config</button>
-<button data-tab="security">🔐 Security</button>
-<button data-tab="settings">Settings</button>
-</div>
+<aside class="cinevaSidebar">
+  <div class="sideBrand"><span class="brandMark">C</span><span>CINEVA</span></div>
+
+  <button class="sideItem activeSide" data-tab="dashboard">⌂ <span>Dashboard</span></button>
+
+  <div class="sideGroup">
+    <button class="sideGroupTitle" type="button">▣ <span>Content</span><b>⌄</b></button>
+    <div class="sideSub">
+      <button data-tab="movies">🎬 Movies</button>
+      <button data-tab="series">📺 Series</button>
+      <button data-tab="episodes">▶ Episodes</button>
+      <button data-tab="genres">▦ Genres</button>
+    </div>
+  </div>
+
+  <div class="sideGroup">
+    <button class="sideGroupTitle" type="button">⌂ <span>Home</span><b>⌄</b></button>
+    <div class="sideSub">
+      <button data-tab="home">Home Layout</button>
+      <button data-tab="home">Hero</button>
+      <button data-tab="home">Featured</button>
+      <button data-tab="home">Trending</button>
+      <button data-tab="home">Coming Soon</button>
+    </div>
+  </div>
+
+  <div class="sideGroup">
+    <button class="sideGroupTitle" type="button">♙ <span>Users</span><b>⌄</b></button>
+    <div class="sideSub">
+      <button data-tab="users">All Users</button>
+      <button data-tab="users">Active Users</button>
+      <button data-tab="premium">Premium Users</button>
+      <button data-tab="users">Blocked Users</button>
+    </div>
+  </div>
+
+  <div class="sideGroup">
+    <button class="sideGroupTitle" type="button">◇ <span>Engagement</span><b>⌄</b></button>
+    <div class="sideSub">
+      <button data-tab="analytics">Watch History</button>
+      <button data-tab="analytics">My List</button>
+      <button data-tab="reports">Reviews & Reports</button>
+    </div>
+  </div>
+
+  <div class="sideGroup">
+    <button class="sideGroupTitle" type="button">◆ <span>Monetization</span><b>⌄</b></button>
+    <div class="sideSub">
+      <button data-tab="premium">Subscriptions</button>
+      <button data-tab="coins">Coins</button>
+      <button data-tab="coins">Rewards</button>
+    </div>
+  </div>
+
+  <div class="sideGroup">
+    <button class="sideGroupTitle" type="button">▱ <span>Communication</span><b>⌄</b></button>
+    <div class="sideSub">
+      <button data-tab="announcements">Announcements</button>
+      <button data-tab="announcements">Notifications</button>
+      <button data-tab="support">Support</button>
+    </div>
+  </div>
+
+  <div class="sideGroup">
+    <button class="sideGroupTitle" type="button">▥ <span>Analytics</span><b>⌄</b></button>
+    <div class="sideSub">
+      <button data-tab="analytics">Overview</button>
+      <button data-tab="analytics">Users</button>
+      <button data-tab="analytics">Content</button>
+      <button data-tab="analytics">Watch Time</button>
+      <button data-tab="analytics">Revenue</button>
+    </div>
+  </div>
+
+  <div class="sideGroup">
+    <button class="sideGroupTitle" type="button">▤ <span>Media</span><b>⌄</b></button>
+    <div class="sideSub">
+      <button data-tab="media">Storage</button>
+      <button data-tab="media">Uploads</button>
+      <button data-tab="media">Media Library</button>
+    </div>
+  </div>
+
+  <div class="sideGroup">
+    <button class="sideGroupTitle" type="button">⚙ <span>System</span><b>⌄</b></button>
+    <div class="sideSub">
+      <button data-tab="config">App Configuration</button>
+      <button data-tab="config">App Versions</button>
+      <button data-tab="config">Player Settings</button>
+      <button data-tab="config">Languages</button>
+      <button data-tab="security">Security</button>
+      <button data-tab="security">Admin Roles</button>
+      <button data-tab="security">Activity Logs</button>
+    </div>
+  </div>
+
+  <div class="sideBottom">
+    <button class="sideItem" data-tab="settings">⚙ <span>Settings</span></button>
+    <button class="sideItem" id="sideProfile" data-tab="settings">♙ <span>Admin Profile</span></button>
+    <button class="sideItem" id="sideLogout">⇥ <span>Logout</span></button>
+  </div>
+</aside>
 
 
 <!-- DASHBOARD -->
@@ -2193,55 +2298,62 @@ $("cinevaEpSave").onclick=async()=>{
 const baseOpenTab=window.openTab;
 window.openTab=async id=>{await baseOpenTab(id);if(id==="episodes")loadModernEpisodes();if(id==="premium")loadDashboard().then(()=>set("premiumUsers",document.getElementById("dPremium")?.textContent||"—"));if(id==="coins")set("coinDistributed",document.getElementById("dCoins")?.textContent||"—");if(id==="analytics"){await loadAnalytics();set("anMovies",movies.length);set("anSeries",series.length);set("anViews",(movies.reduce((a,x)=>a+num(x.views),0)+series.reduce((a,x)=>a+num(x.views),0)).toLocaleString())}};
 </script><script>
-<!-- ADMIN PHONE BACK NAVIGATION v2 -->
 <script>
+/* ===== CINEVA ADMIN NAVIGATION + PHONE BACK ===== */
 (function(){
-  const previousOpenTab = window.openTab;
-  if(typeof previousOpenTab !== "function") return;
+  const originalOpenTab=window.openTab;
+  if(typeof originalOpenTab!=="function") return;
 
-  let restoring = false;
+  let restoring=false;
 
-  function tabFromHash(){
-    const m = location.hash.match(/^#admin\/([A-Za-z0-9_-]+)$/);
-    return m ? m[1] : null;
+  function getTab(){
+    const m=location.hash.match(/^#admin\/([A-Za-z0-9_-]+)$/);
+    return m ? m[1] : "dashboard";
   }
 
-  function goTab(id, addHistory){
-    if(!id || !document.getElementById(id)) return;
-    if(addHistory && !restoring){
-      const current = tabFromHash();
-      if(current !== id){
-        history.pushState({cinevaAdminTab:id}, "", "#admin/"+id);
-      }
+  function showTab(id, push){
+    if(!id || !document.getElementById(id)) id="dashboard";
+    if(push && !restoring && getTab()!==id){
+      history.pushState({cinevaAdminTab:id},"","#admin/"+id);
     }
-    restoring = true;
-    try {
-      previousOpenTab(id);
-    } finally {
-      setTimeout(function(){ restoring=false; },0);
-    }
+    restoring=true;
+    try{ originalOpenTab(id); }
+    finally{ setTimeout(function(){restoring=false;},0); }
+    document.querySelectorAll(".sideItem,.sideSub button").forEach(function(b){
+      b.classList.toggle("activeSide", b.dataset.tab===id);
+    });
   }
 
-  const initial =
-    tabFromHash() ||
-    document.querySelector(".section.active")?.id ||
-    "dashboard";
+  const first=getTab();
+  history.replaceState({cinevaAdminTab:first},"","#admin/"+first);
 
-  history.replaceState({cinevaAdminTab:initial}, "", "#admin/"+initial);
+  window.openTab=function(id){ showTab(id,true); };
 
-  window.openTab = function(id){
-    goTab(id, true);
-  };
-
-  window.addEventListener("popstate", function(){
-    const id = tabFromHash() || "dashboard";
-    goTab(id, false);
+  window.addEventListener("popstate",function(){
+    showTab(getTab(),false);
   });
 
-  window.addEventListener("hashchange", function(){
-    const id = tabFromHash();
-    if(id) goTab(id, false);
+  document.querySelectorAll(".sideGroupTitle").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      btn.parentElement.classList.toggle("open");
+    });
   });
+
+  document.querySelectorAll(".cinevaSidebar [data-tab]").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      showTab(btn.dataset.tab,true);
+      if(window.innerWidth<=900) document.body.classList.remove("adminMenuOpen");
+    });
+  });
+
+  const logout=document.getElementById("logout");
+  const sideLogout=document.getElementById("sideLogout");
+  if(logout && sideLogout){
+    sideLogout.addEventListener("click",function(){ logout.click(); });
+  }
+
+  const firstSide=document.querySelector('.sideItem[data-tab="dashboard"]');
+  if(firstSide) firstSide.classList.add("activeSide");
 })();
 </script>
 </body>
