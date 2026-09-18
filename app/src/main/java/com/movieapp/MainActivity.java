@@ -104,6 +104,7 @@ public class MainActivity extends Activity {
         cinevaPrefs = getSharedPreferences("cineva_local", MODE_PRIVATE);
         loadLocalData();
         loadFeatureData();
+        loadCinevaUserCloud();
 
         GoogleSignInOptions googleOptions =
             new GoogleSignInOptions.Builder(
@@ -217,7 +218,7 @@ public class MainActivity extends Activity {
                 String apkUrl =
                     json.getString("apkUrl");
 
-                if (latestVersion > 5) {
+                if (latestVersion > BuildConfig.VERSION_CODE) {
                     runOnUiThread(() ->
                         showMandatoryUpdate(apkUrl)
                     );
@@ -443,6 +444,7 @@ public class MainActivity extends Activity {
         activate.setOnClickListener(v -> {
             premiumActive = true;
             saveFeatureData();
+            syncCinevaUserCloud();
             activate.setText("✓  Premium Active");
             Toast.makeText(
                 this,
@@ -591,6 +593,43 @@ public class MainActivity extends Activity {
         }
 
         saveLocalData();
+        syncCinevaUserCloud();
+    }
+
+    void syncCinevaUserCloud() {
+        if (auth == null || db == null) return;
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null || user.isAnonymous()) return;
+        HashMap<String,Object> cloud = new HashMap<>();
+        cloud.put("uid", user.getUid());
+        cloud.put("email", user.getEmail() == null ? "" : user.getEmail());
+        cloud.put("displayName", user.getDisplayName() == null ? "Cineva User" : user.getDisplayName());
+        cloud.put("myList", new ArrayList<>(myList));
+        cloud.put("coins", cinevaCoins);
+        cloud.put("premiumActive", premiumActive);
+        cloud.put("lastActive", com.google.firebase.firestore.FieldValue.serverTimestamp());
+        db.collection("users").document(user.getUid()).set(cloud,
+            com.google.firebase.firestore.SetOptions.merge());
+    }
+
+    void loadCinevaUserCloud() {
+        if (auth == null || db == null) return;
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null || user.isAnonymous()) return;
+        db.collection("users").document(user.getUid()).get().addOnSuccessListener(s -> {
+            if (!s.exists()) return;
+            List<String> cloudList = (List<String>) s.get("myList");
+            if (cloudList != null) {
+                myList.clear();
+                myList.addAll(cloudList);
+                saveLocalData();
+            }
+            Long coins = s.getLong("coins");
+            if (coins != null) cinevaCoins = coins.intValue();
+            Boolean prem = s.getBoolean("premiumActive");
+            if (prem != null) premiumActive = prem;
+            saveFeatureData();
+        });
     }
 
     void addWatchHistory(String title) {
