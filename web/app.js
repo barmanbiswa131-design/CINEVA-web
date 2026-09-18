@@ -562,6 +562,31 @@
        INITIAL STATE
        ========================= */
 
+    async function recordCinevaUserActivity(user) {
+        if (!user || !cinevaFirebaseReady()) return;
+
+        try {
+            const ref = firebase.firestore().collection("users").doc(user.uid);
+            const snap = await ref.get();
+
+            const data = {
+                uid: user.uid,
+                email: user.email || "",
+                displayName: user.displayName || (user.email ? user.email.split("@")[0] : "Guest"),
+                provider: user.isAnonymous ? "anonymous" : "firebase",
+                lastActive: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if (!snap.exists) {
+                data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            }
+
+            await ref.set(data, { merge: true });
+        } catch (error) {
+            console.log("CINEVA user activity:", error);
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         const dynamic =
             document.getElementById(
@@ -629,7 +654,16 @@
         }
     };
 
-    window.continueAsGuest = function () {
+    window.continueAsGuest = async function () {
+        if (cinevaFirebaseReady()) {
+            try {
+                await firebase.auth().signInAnonymously();
+                return;
+            } catch (error) {
+                console.log("Anonymous login unavailable:", error);
+            }
+        }
+
         localStorage.setItem("cineva_guest", "true");
         localStorage.setItem("cineva_user", "Guest");
         localStorage.setItem("cineva_name", "Guest");
@@ -728,6 +762,8 @@
                 if (typeof window.hideLogin === "function") {
                     window.hideLogin();
                 }
+
+                recordCinevaUserActivity(user);
 
             }
         });
