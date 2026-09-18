@@ -943,7 +943,7 @@ async function loadAll(){
     const results=await Promise.allSettled(jobs.map(([,fn])=>fn()));
     const failed=results.map((r,i)=>r.status==="rejected"?jobs[i][0]:null).filter(Boolean);
 
-    if(window.loadDashboard) await window.loadDashboard();
+    await loadDashboard();
 
     if(failed.length){
         const el=$("dashboardMsg");
@@ -2208,6 +2208,19 @@ async function loadDashboard(){
         }
     }
 }
+
+/* Expose the module loaders so every navigation layer uses the same live functions. */
+window.loadMovies=loadMovies;
+window.loadGenres=loadGenres;
+window.loadHome=loadHome;
+window.loadAnnouncements=loadAnnouncements;
+window.loadSettings=loadSettings;
+window.loadSeries=loadSeries;
+window.loadUsers=loadUsers;
+window.loadSupport=loadSupport;
+window.loadReports=loadReports;
+window.loadEpisodes=loadEpisodes;
+window.loadDashboard=loadDashboard;
 
 /* Make Dashboard the first-class live page. */
 const dashboardTabBase=window.openTab;
