@@ -100,6 +100,7 @@ public class MainActivity extends Activity {
         db = FirebaseFirestore.getInstance();
 
         auth = FirebaseAuth.getInstance();
+        auth.addAuthStateListener(firebaseAuth -> recordCinevaUserActivity());
         cinevaPrefs = getSharedPreferences("cineva_local", MODE_PRIVATE);
         loadLocalData();
         loadFeatureData();
@@ -128,6 +129,59 @@ public class MainActivity extends Activity {
         showSplash();
     }
 
+
+    void recordCinevaUserActivity() {
+        if (auth == null) return;
+
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) return;
+
+        try {
+            com.google.firebase.firestore.DocumentReference ref =
+                db.collection("users").document(user.getUid());
+
+            ref.get().addOnSuccessListener(snapshot -> {
+                HashMap<String,Object> data =
+                    new HashMap<>();
+
+                data.put("uid", user.getUid());
+                data.put("email",
+                    user.getEmail() == null ? "" : user.getEmail());
+                data.put("displayName",
+                    user.getDisplayName() == null
+                        ? (user.getEmail() == null ? "Guest" : user.getEmail().split("@")[0])
+                        : user.getDisplayName());
+                data.put("provider",
+                    user.isAnonymous() ? "anonymous" : "firebase");
+                data.put("lastActive", System.currentTimeMillis());
+
+                if (!snapshot.exists()) {
+                    data.put("createdAt", System.currentTimeMillis());
+                }
+
+                ref.set(data,
+                    com.google.firebase.firestore.SetOptions.merge());
+            }).addOnFailureListener(e ->
+                android.util.Log.d(
+                    "CINEVA_ACTIVITY",
+                    "User activity sync failed: " + e.getMessage()
+                )
+            );
+
+        } catch (Exception e) {
+            android.util.Log.d(
+                "CINEVA_ACTIVITY",
+                "User activity error: " + e.getMessage()
+            );
+        }
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        recordCinevaUserActivity();
+    }
 
     void checkForMandatoryUpdate() {
         new Thread(() -> {
