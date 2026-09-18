@@ -1731,36 +1731,55 @@ $("addSeries").onclick=async()=>{
 $("refreshSeries").onclick=loadSeries;
 
 function fillEpisodeSeries(){
-  const el=$("cinevaEpSeries"); if(!el)return;
-  el.innerHTML=seriesData.length
+  const selects=[$("episodeSeries"),$("cinevaEpSeries")].filter(Boolean);
+  const html=seriesData.length
     ?seriesData.map(x=>`<option value="${escapeHtml(x.id)}">${escapeHtml(x.title||"Untitled")}</option>`).join("")
     :"<option value=''>No series</option>";
+  selects.forEach(el=>el.innerHTML=html);
 }
 async function loadEpisodes(seriesId){
-  const list=$("cinevaEpList"); if(!list)return;
+  const lists=[$("episodeList"),$("cinevaEpList")].filter(Boolean);
   try{
-    const snap=await getDocs(collection(db,"episodes"));
-    const arr=[]; snap.forEach(x=>{const d=x.data();if(d.seriesId===seriesId)arr.push({id:x.id,...d});});
-    list.innerHTML=arr.length?arr.map(x=>`<div class="movie"><div class="movieInfo"><div class="movieTitle">S${escapeHtml(String(x.season||1))} E${escapeHtml(String(x.episode||1))} — ${escapeHtml(x.title||"Episode")}</div><div class="small">${escapeHtml(x.videoUrl||"No video URL")}</div></div><button class="danger" onclick="deleteEpisode('${x.id}')">Delete</button></div>`).join(""):"<div class='empty'>No episodes.</div>";
-  }catch(e){list.innerHTML=`<div class="error">${escapeHtml(e.message)}</div>`;}
+    const snap=await getDocs(collection(db,"episodes"));const arr=[];
+    snap.forEach(x=>{const d=x.data();if(d.seriesId===seriesId)arr.push({id:x.id,...d});});
+    const html=arr.length?arr.map(x=>`<div class="movie"><div class="movieInfo"><div class="movieTitle">S${escapeHtml(String(x.season||1))} E${escapeHtml(String(x.episode||1))} — ${escapeHtml(x.title||"Episode")}</div><div class="small">${escapeHtml(x.videoUrl||"No video URL")}</div></div><button class="danger" onclick="deleteEpisode('${x.id}')">Delete</button></div>`).join(""):"<div class='empty'>No episodes.</div>";
+    lists.forEach(el=>el.innerHTML=html);
+  }catch(e){lists.forEach(el=>el.innerHTML=`<div class="error">${escapeHtml(e.message)}</div>`);}
 }
 window.deleteEpisode=async id=>{
   if(!confirm("Delete this episode?"))return;
-  try{await deleteDoc(doc(db,"episodes",id));const sid=$("cinevaEpSeries")?.value;if(sid)await loadEpisodes(sid);}
+  try{await deleteDoc(doc(db,"episodes",id));const sid=$("episodeSeries")?.value||$("cinevaEpSeries")?.value;if(sid)await loadEpisodes(sid);}
   catch(e){alert(e.message);}
 };
-const epSeries=$("cinevaEpSeries"); if(epSeries)epSeries.onchange=()=>loadEpisodes(epSeries.value);
-const epSave=$("cinevaEpSave");
-if(epSave)epSave.onclick=async()=>{
-  const seriesId=epSeries?.value;
-  if(!seriesId){$("cinevaEpMsg").innerHTML="<div class='error'>Add a series first.</div>";return;}
+function episodeValue(modern,old){return $(modern)?.value?.trim() ?? $(old)?.value?.trim() ?? "";}
+function episodeNumber(modern,old){return Number($(modern)?.value || $(old)?.value || 1);}
+async function saveEpisode(modern){
+  const seriesId=$(modern?"cinevaEpSeries":"episodeSeries")?.value;
+  const msg=$(modern?"cinevaEpMsg":"episodeMsg");
+  if(!seriesId){if(msg)msg.innerHTML="<div class='error'>Add a series first.</div>";return;}
   try{
-    await addDoc(collection(db,"episodes"),{seriesId,season:Number($("cinevaEpSeason")?.value||1),episode:Number($("cinevaEpNumber")?.value||1),title:$("cinevaEpTitle")?.value.trim()||"",videoUrl:$("cinevaEpVideo")?.value.trim()||"",trailerUrl:$("cinevaEpTrailer")?.value.trim()||"",description:$("cinevaEpDesc")?.value.trim()||"",createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
-    $("cinevaEpMsg").innerHTML="<div class='success'>Episode published successfully.</div>";
-    ["cinevaEpSeason","cinevaEpNumber","cinevaEpTitle","cinevaEpVideo","cinevaEpTrailer","cinevaEpDesc"].forEach(id=>{if($(id))$(id).value=""});
+    await addDoc(collection(db,"episodes"),{
+      seriesId,
+      season:episodeNumber("cinevaEpSeason","episodeSeason"),
+      episode:episodeNumber("cinevaEpNumber","episodeNumber"),
+      title:episodeValue("cinevaEpTitle","episodeTitle"),
+      videoUrl:episodeValue("cinevaEpVideo","episodeVideo"),
+      trailerUrl:episodeValue("cinevaEpTrailer","episodeTrailer"),
+      description:episodeValue("cinevaEpDesc","episodeDescription"),
+      createdAt:serverTimestamp(),updatedAt:serverTimestamp()
+    });
+    if(msg)msg.innerHTML="<div class='success'>Episode published successfully.</div>";
+    ["cinevaEpSeason","cinevaEpNumber","cinevaEpTitle","cinevaEpVideo","cinevaEpTrailer","cinevaEpDesc","episodeTitle","episodeSeason","episodeNumber","episodeVideo","episodeTrailer","episodeDescription"].forEach(id=>{if($(id))$(id).value=""});
     await loadEpisodes(seriesId);
-  }catch(e){$("cinevaEpMsg").innerHTML=`<div class="error">${escapeHtml(e.message)}</div>`;}
-};
+  }catch(e){if(msg)msg.innerHTML=`<div class="error">${escapeHtml(e.message)}</div>`;}
+}
+window.fillEpisodeSeries=fillEpisodeSeries;
+const epSeries=$("episodeSeries"), modernSeries=$("cinevaEpSeries");
+if(epSeries)epSeries.onchange=()=>loadEpisodes(epSeries.value);
+if(modernSeries)modernSeries.onchange=()=>loadEpisodes(modernSeries.value);
+const epSave=$("addEpisode"),modernSave=$("cinevaEpSave");
+if(epSave)epSave.onclick=()=>saveEpisode(false);
+if(modernSave)modernSave.onclick=()=>saveEpisode(true);
 
 /* USERS */
 
@@ -2248,6 +2267,7 @@ $("cfgSave").onclick=async()=>{await setDoc(doc(db,"settings","app"),{minVersion
   if(push&&!restoring&&getTab()!==id)history.pushState({cinevaAdminTab:id},"","#admin/"+id);
   restoring=true;try{originalOpenTab(id);}finally{setTimeout(()=>restoring=false,0);}
   document.querySelectorAll(".sideItem,.sideSub button").forEach(b=>b.classList.toggle("activeSide",b.dataset.tab===id));
+  if(id==="episodes"&&window.fillEpisodeSeries)window.fillEpisodeSeries();
  };
  const initial=getTab();history.replaceState({cinevaAdminTab:initial},"","#admin/"+initial);
  window.openTab=id=>showTab(id,true);
