@@ -324,6 +324,17 @@
             };
         }
 
+        const listBtn = document.getElementById("firebaseMyListButton");
+        if (listBtn) {
+            const inList = typeof window.cinevaCloudGetList === "function" && window.cinevaCloudGetList().includes(title);
+            listBtn.textContent = inList ? "✓ Remove from My List" : "＋ My List";
+            listBtn.onclick = async function(){
+                if (!firebase.auth().currentUser || firebase.auth().currentUser.isAnonymous) { alert("Please sign in to use My List."); return; }
+                await window.cinevaCloudToggleList(title);
+                listBtn.textContent = window.cinevaCloudGetList().includes(title) ? "✓ Remove from My List" : "＋ My List";
+            };
+        }
+
         const play = document.getElementById("firebasePlayButton");
 
         if (play) {
@@ -1217,6 +1228,8 @@
                     }
 
                     <p>${safe(description)}</p>
+
+                    <button class="secondary" id="firebaseMyListButton">＋ My List</button>
 
                     <div
                         style="
@@ -2377,6 +2390,7 @@ window.cinevaCloudAddCoins=async function(amount){
  const current=window.cinevaCloudState().coins; const next=current+Number(amount);
  localStorage.setItem("cineva_cloud_coins",String(next));
  await cloudUserPatch({coins:next,coinsUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+ try{await firebase.firestore().collection("coinTransactions").add({uid:id,amount:Number(amount),type:"credit",reason:"CINEVA reward",createdAt:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){console.warn("CINEVA coin transaction",e);}
 };
 window.cinevaCloudSetPremium=async function(active){
  if(!uid()) return; localStorage.setItem("cineva_cloud_premium",active?"1":"0");
@@ -2389,13 +2403,17 @@ window.cinevaCloudLoadAppSettings=async function(){
 window.addEventListener("cineva-auth-ready",syncUser);
 if(cloudReady()) firebase.auth().onAuthStateChanged(async function(){await syncUser();await window.cinevaCloudLoadAppSettings();});
 const oldShowMyList=window.showMyList;
-window.showMyList=function(){
+window.showMyList=async function(){
+ const page=document.getElementById("mylist"); if(!page) return;
  const list=cloudList();
- const page=document.getElementById("mylist"); if(!page){if(oldShowMyList) oldShowMyList(); return;}
  page.innerHTML='<div class="page-title"><h1>My List</h1><p>Movies and series you saved</p></div>';
  if(!list.length){page.innerHTML+='<div class="empty"><div>＋</div><h2>Your list is empty</h2><p>Add movies and series to watch later.</p></div>';return;}
- const grid=document.createElement("div"); grid.className="grid cineva-cloud-mylist";
- list.forEach(title=>{const m=(window.cinevaMovies||[]).find(x=>x.title===title)||(window.cinevaSeries||[]).find(x=>x.title===title); if(!m)return; const card=document.createElement("article");card.className="movie-card";card.innerHTML='<div class="poster" style="background-image:url(\\''+escapeHTML(m.posterUrl||"")+'\\')"></div><b>'+escapeHTML(m.title||"Untitled")+'</b><small>'+escapeHTML(m.year||"")+'</small>';card.onclick=()=>m.videoUrl?window.showFirebaseMovie(m):window.showFirebaseSeries&&window.showFirebaseSeries(m);grid.appendChild(card);});
- page.appendChild(grid);
-};
+ try{
+  const db=firebase.firestore(); const [ms,ss]=await Promise.all([db.collection("movies").get(),db.collection("series").get()]);
+  const all=[]; ms.forEach(d=>all.push({id:d.id,type:"movie",...d.data()})); ss.forEach(d=>all.push({id:d.id,type:"series",...d.data()}));
+  const grid=document.createElement("div"); grid.className="grid cineva-cloud-mylist";
+  list.forEach(title=>{const m=all.find(x=>x.title===title);if(!m)return;const card=document.createElement("article");card.className="movie-card";card.innerHTML='<div class="poster" style="background-image:url(\\''+escapeHTML(m.posterUrl||"")+"\\')"></div><b>"+escapeHTML(m.title||"Untitled")+"</b><small>"+escapeHTML(m.type==="series"?"Series":(m.year||"Movie"))+"</small>';card.onclick=()=>m.type==="series"?window.showFirebaseSeries(m):window.showFirebaseMovie(m);grid.appendChild(card);});
+  page.appendChild(grid);
+ }catch(e){page.innerHTML+='<div class="empty">Could not load My List.</div>';console.warn(e);}
+}
 })();
