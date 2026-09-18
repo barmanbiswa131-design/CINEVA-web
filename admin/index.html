@@ -2320,8 +2320,6 @@ window.uploadModernMedia=async(input,folder,out)=>{
 $("cfgSave").onclick=async()=>{await setDoc(doc(db,"settings","app"),{minVersion:$("cfgMin").value.trim(),latestVersion:$("cfgLatest").value.trim(),apkUrl:$("cfgApk").value.trim(),defaultQuality:$("cfgQuality").value.trim(),maintenance:$("cfgMaintenance").checked,forceUpdate:$("cfgForce").checked,updatedAt:serverTimestamp()},{merge:true});$("cfgMsg").textContent="Configuration saved."};
 </script>
 
-<script>
-/* ===== CINEVA ADMIN NAVIGATION + PHONE BACK ===== */
-(function(){
- const originalOpenTab=window.openTab;if(typeof originalOpenTab!=="function")return;
- let restoring=false;
+
+</body>
+</html>
