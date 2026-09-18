@@ -891,6 +891,7 @@ if(id==="announcements" && window.loadAnnouncements) window.loadAnnouncements();
 if(id==="support" && window.loadSupport) window.loadSupport();
 if(id==="reports" && window.loadReports) window.loadReports();
 if(id==="settings" && window.loadSettings) window.loadSettings();
+if(id==="analytics" && window.loadAnalytics) window.loadAnalytics();
 
 
 };
@@ -2278,15 +2279,7 @@ window.getCinevaAdminAuthStatus=async()=>{
     }
 };
 
-/* Make Dashboard the first-class live page. */
-const dashboardTabBase=window.openTab;
-window.openTab=function(id){
-    dashboardTabBase(id);
-    if(id==="dashboard") loadDashboard();
-};
-
 console.log("CINEVA Complete Admin System loaded.");
-
 
 window.loadAnalytics=async function(){
  try{
@@ -2312,12 +2305,52 @@ window.loadAnalytics=async function(){
 
 <script type="module">
 window.uploadModernMedia=async(input,folder,out)=>{
- const f=document.getElementById(input).files[0]; if(!f)return;
- const rr=ref(storage,folder+"/"+Date.now()+"_"+f.name.replace(/[^a-zA-Z0-9._-]/g,"_"));
+ const box=document.getElementById(out);
+ try{
+  await requireAdminSession();
+  const f=document.getElementById(input).files[0];
+  if(!f)return;
+  if(!f.type.startsWith("image/")) throw new Error("Please select an image file.");
+  const rr=ref(storage,folder+"/"+Date.now()+"_"+f.name.replace(/[^a-zA-Z0-9._-]/g,"_"));
  const task=uploadBytesResumable(rr,f);
- task.on("state_changed",s=>document.getElementById(out).textContent=Math.round(s.bytesTransferred/s.totalBytes*100)+"%",e=>document.getElementById(out).textContent=e.message,async()=>{const u=await getDownloadURL(task.snapshot.ref);document.getElementById(out).textContent="Uploaded • URL copied";navigator.clipboard?.writeText(u)});
+ task.on("state_changed",
+   st=>{if(box)box.textContent=Math.round(st.bytesTransferred/st.totalBytes*100)+"%";},
+   e=>{if(box){box.className="message error";box.textContent=e.message;}},
+   async()=>{
+    try{
+     const u=await getDownloadURL(task.snapshot.ref);
+     if(box){box.className="message success";box.textContent="Uploaded • URL copied";}
+     navigator.clipboard?.writeText(u);
+    }catch(e){
+     if(box){box.className="message error";box.textContent="Upload completed but URL could not be read: "+e.message;}
+    }
+   }
+  );
+ }catch(e){
+  if(box){box.className="message error";box.textContent="Upload failed: "+(e?.message||String(e));}
+  console.error("CINEVA media upload failed:",e);
+ }
 };
-$("cfgSave").onclick=async()=>{await setDoc(doc(db,"settings","app"),{minVersion:$("cfgMin").value.trim(),latestVersion:$("cfgLatest").value.trim(),apkUrl:$("cfgApk").value.trim(),defaultQuality:$("cfgQuality").value.trim(),maintenance:$("cfgMaintenance").checked,forceUpdate:$("cfgForce").checked,updatedAt:serverTimestamp()},{merge:true});$("cfgMsg").textContent="Configuration saved."};
+$("cfgSave").onclick=async()=>{
+ try{
+  await requireAdminSession();
+  await setDoc(doc(db,"settings","app"),{
+   minVersion:$("cfgMin").value.trim(),
+   latestVersion:$("cfgLatest").value.trim(),
+   apkUrl:$("cfgApk").value.trim(),
+   defaultQuality:$("cfgQuality").value.trim(),
+   maintenance:$("cfgMaintenance").checked,
+   forceUpdate:$("cfgForce").checked,
+   updatedAt:serverTimestamp()
+  },{merge:true});
+  $("cfgMsg").className="message success";
+  $("cfgMsg").textContent="Configuration saved.";
+ }catch(e){
+  $("cfgMsg").className="message error";
+  $("cfgMsg").textContent="Configuration save failed: "+(e?.message||String(e));
+  console.error("CINEVA Configuration save failed:",e);
+ }
+};
 </script>
 
 
