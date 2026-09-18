@@ -930,17 +930,13 @@ if(user){
 $("login").style.display="none";
 $("panel").style.display="block";
 $("logout").style.display="block";
-$("adminStatus").textContent="● Checking admin session…";
+$("adminStatus").textContent="● "+(user.email||"Admin")+" • "+(user.emailVerified?"Verified":"Email not verified");
 
-try{
-    const session=await refreshAdminSession();
-    $("adminStatus").textContent="● "+(session.email||"Admin")+" • "+(session.emailVerified?"Verified":"Email not verified");
-    await loadAll();
-}catch(e){
-    $("adminStatus").textContent="● "+(user.email||"Admin")+" • Admin check failed";
+loadAll().catch(e=>{
+    console.error("CINEVA Admin load failed:",e);
     const msg=$("dashboardMsg");
-    if(msg){msg.className="message error";msg.textContent="Admin session check failed: "+(e?.message||String(e));}
-}
+    if(msg){msg.className="message error";msg.textContent="Admin data load failed: "+(e?.message||String(e));}
+});
 
 }else{
 
@@ -954,7 +950,6 @@ $("logout").style.display="none";
 
 
 async function loadAll(){
-    await requireAdminSession();
     const jobs=[
         ["Movies",loadMovies],["Genres",loadGenres],["Series",loadSeries],
         ["Users",loadUsers],["Episodes",async()=>{if(window.fillEpisodeSeries) window.fillEpisodeSeries();}],
