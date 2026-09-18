@@ -2298,7 +2298,6 @@ $("cinevaEpSave").onclick=async()=>{
 const baseOpenTab=window.openTab;
 window.openTab=async id=>{await baseOpenTab(id);if(id==="episodes")loadModernEpisodes();if(id==="premium")loadDashboard().then(()=>set("premiumUsers",document.getElementById("dPremium")?.textContent||"—"));if(id==="coins")set("coinDistributed",document.getElementById("dCoins")?.textContent||"—");if(id==="analytics"){await loadAnalytics();set("anMovies",movies.length);set("anSeries",series.length);set("anViews",(movies.reduce((a,x)=>a+num(x.views),0)+series.reduce((a,x)=>a+num(x.views),0)).toLocaleString())}};
 </script><script>
-<script>
 /* ===== CINEVA ADMIN NAVIGATION + PHONE BACK ===== */
 (function(){
   const originalOpenTab=window.openTab;
