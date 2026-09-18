@@ -855,9 +855,7 @@ const $=id=>document.getElementById(id);
 async function refreshAdminSession(){
     const user=auth.currentUser;
     if(!user) throw new Error("Admin is not signed in.");
-    await user.reload();
-    const tokenResult=await getIdTokenResult(user,true);
-    return {user,email:user.email||"",emailVerified:!!user.emailVerified,claims:tokenResult.claims||{}};
+    return {user,email:user.email||"",emailVerified:!!user.emailVerified,claims:{}};
 }
 
 async function requireAdminSession(){
