@@ -921,14 +921,20 @@ $("logout").style.display="none";
 
 
 async function loadAll(){
-
-await loadMovies();
-await loadGenres();
-await loadHome();
-await loadAnnouncements();
-await loadSettings();
-updateDashboard();
-
+    const jobs=[
+        ["Movies",loadMovies],["Genres",loadGenres],["Series",loadSeries],
+        ["Users",loadUsers],["Episodes",async()=>{if(window.fillEpisodeSeries) window.fillEpisodeSeries();}],
+        ["Support",loadSupport],["Reports",loadReports],["Announcements",loadAnnouncements],
+        ["Settings",loadSettings],["Home",loadHome]
+    ];
+    const results=await Promise.allSettled(jobs.map(([,fn])=>fn()));
+    const failed=results.map((r,i)=>r.status==="rejected"?jobs[i][0]:null).filter(Boolean);
+    updateDashboard();
+    if(window.loadDashboard) await window.loadDashboard();
+    if(failed.length){
+        const el=$("dashboardMsg");
+        if(el){el.className="message error";el.textContent="Some sections could not load: "+failed.join(", ");}
+    }
 }
 
 
