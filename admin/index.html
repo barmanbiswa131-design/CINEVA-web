@@ -1262,6 +1262,7 @@ $("statGenres").textContent=genres.length;
 async function loadHome(){
 
 try{
+await requireAdminSession();
 
 const snap=await getDoc(
 doc(db,"settings","home")
@@ -1280,8 +1281,11 @@ $("homeComing").checked=!!d.comingSoonEnabled;
 
 renderFeatured();
 
-}catch(e){}
-
+}catch(e){
+    const msg=$("homeMsg");
+    if(msg){msg.className="message error";msg.textContent="Home settings load failed: "+(e?.message||String(e));}
+    console.error("CINEVA Home load failed:",e);
+    throw e;
 }
 
 
@@ -1536,6 +1540,7 @@ await loadAnnouncements();
 async function loadSettings(){
 
 try{
+await requireAdminSession();
 
 const snap=await getDoc(
 doc(db,"settings","app")
@@ -1554,8 +1559,11 @@ $("maintenance").checked=!!d.maintenance;
 
 }
 
-}catch(e){}
-
+}catch(e){
+    const msg=$("settingsMsg");
+    if(msg){msg.className="message error";msg.textContent="Settings load failed: "+(e?.message||String(e));}
+    console.error("CINEVA Settings load failed:",e);
+    throw e;
 }
 
 
