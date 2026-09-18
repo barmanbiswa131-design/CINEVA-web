@@ -171,13 +171,23 @@ main#panel{margin-left:248px!important;padding-top:88px!important}
 #panel>.nav{display:none!important}
 main#panel{margin-left:248px!important}
 header{left:248px!important}
+.sideIcon{width:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center;color:#29b9ff;font-size:17px;line-height:1}.sideItem.activeSide .sideIcon,.sideGroup.open>.sideGroupTitle .sideIcon{color:#5bd3ff}.sideGroupTitle .sideIcon{font-size:16px}
 @media(max-width:900px){
- .cinevaSidebar{transform:translateX(-100%);transition:transform .2s ease}
- body.adminMenuOpen .cinevaSidebar{transform:translateX(0)}
- main#panel{margin-left:0!important}
- header{left:0!important}
+ .cinevaSidebar{transform:none!important;width:78px;padding:18px 8px;overflow-x:hidden}
+ .cinevaSidebar .sideBrand{justify-content:center;padding-left:0;padding-right:0}
+ .cinevaSidebar .sideBrand span:last-child{display:none}
+ .cinevaSidebar .sideItem,.cinevaSidebar .sideGroupTitle{justify-content:center;padding:10px 4px!important;gap:0!important}
+ .cinevaSidebar .sideItem>span:not(.sideIcon),.cinevaSidebar .sideGroupTitle>span:not(.sideIcon){display:none}
+ .cinevaSidebar .sideGroupTitle b{display:none}
+ .cinevaSidebar .sideSub{padding-left:0}
+ .cinevaSidebar .sideSub button{font-size:0;text-align:center;padding:9px 3px}
+ .cinevaSidebar .sideSub button:before{content:"•";font-size:18px;color:#29b9ff}
+ .cinevaSidebar .sideBottom{margin-top:14px}
+ main#panel{margin-left:78px!important}
+ header{left:78px!important}
+ .adminTop #adminMenuBtn{display:none!important}
 }
-.adminTop{gap:10px!important}.adminTop #adminMenuBtn{display:none!important}@media(max-width:900px){.adminTop #adminMenuBtn{display:inline-flex!important;align-items:center;justify-content:center;padding:9px 12px!important}.adminTop{justify-content:space-between}.adminTop #logout{margin-left:0!important}}</style>
+.adminTop{gap:10px!important}.adminTop #adminMenuBtn{display:none!important}.adminTop{justify-content:space-between}.adminTop #logout{margin-left:0!important}</style>
 </head>
 
 <body>
@@ -203,10 +213,10 @@ header{left:248px!important}
 <aside class="cinevaSidebar">
   <div class="sideBrand"><span class="brandMark">C</span><span>CINEVA</span></div>
 
-  <button class="sideItem activeSide" data-tab="dashboard">⌂ <span>Dashboard</span></button>
+  <button class="sideItem activeSide" data-tab="dashboard"><span class="sideIcon">⌂</span><span>Dashboard</span></button>
 
   <div class="sideGroup">
-    <button class="sideGroupTitle" type="button">▣ <span>Content</span><b>⌄</b></button>
+    <button class="sideGroupTitle" type="button"><span class="sideIcon">▣</span><span>Content</span><b>⌄</b></button>
     <div class="sideSub">
       <button data-tab="movies">🎬 Movies</button>
       <button data-tab="series">📺 Series</button>
@@ -216,7 +226,7 @@ header{left:248px!important}
   </div>
 
   <div class="sideGroup">
-    <button class="sideGroupTitle" type="button">⌂ <span>Home</span><b>⌄</b></button>
+    <button class="sideGroupTitle" type="button"><span class="sideIcon">⌂</span><span>Home</span><b>⌄</b></button>
     <div class="sideSub">
       <button data-tab="home">Home Layout</button>
       <button data-tab="home">Hero</button>
@@ -227,7 +237,7 @@ header{left:248px!important}
   </div>
 
   <div class="sideGroup">
-    <button class="sideGroupTitle" type="button">♙ <span>Users</span><b>⌄</b></button>
+    <button class="sideGroupTitle" type="button"><span class="sideIcon">♙</span><span>Users</span><b>⌄</b></button>
     <div class="sideSub">
       <button data-tab="users">All Users</button>
       <button data-tab="users">Active Users</button>
@@ -237,7 +247,7 @@ header{left:248px!important}
   </div>
 
   <div class="sideGroup">
-    <button class="sideGroupTitle" type="button">◇ <span>Engagement</span><b>⌄</b></button>
+    <button class="sideGroupTitle" type="button"><span class="sideIcon">◇</span><span>Engagement</span><b>⌄</b></button>
     <div class="sideSub">
       <button data-tab="analytics">Watch History</button>
       <button data-tab="analytics">My List</button>
@@ -246,7 +256,7 @@ header{left:248px!important}
   </div>
 
   <div class="sideGroup">
-    <button class="sideGroupTitle" type="button">◆ <span>Monetization</span><b>⌄</b></button>
+    <button class="sideGroupTitle" type="button"><span class="sideIcon">◆</span><span>Monetization</span><b>⌄</b></button>
     <div class="sideSub">
       <button data-tab="premium">Subscriptions</button>
       <button data-tab="coins">Coins</button>
@@ -255,7 +265,7 @@ header{left:248px!important}
   </div>
 
   <div class="sideGroup">
-    <button class="sideGroupTitle" type="button">▱ <span>Communication</span><b>⌄</b></button>
+    <button class="sideGroupTitle" type="button"><span class="sideIcon">▱</span><span>Communication</span><b>⌄</b></button>
     <div class="sideSub">
       <button data-tab="announcements">Announcements</button>
       <button data-tab="announcements">Notifications</button>
@@ -264,7 +274,7 @@ header{left:248px!important}
   </div>
 
   <div class="sideGroup">
-    <button class="sideGroupTitle" type="button">▥ <span>Analytics</span><b>⌄</b></button>
+    <button class="sideGroupTitle" type="button"><span class="sideIcon">▥</span><span>Analytics</span><b>⌄</b></button>
     <div class="sideSub">
       <button data-tab="analytics">Overview</button>
       <button data-tab="analytics">Users</button>
@@ -275,7 +285,7 @@ header{left:248px!important}
   </div>
 
   <div class="sideGroup">
-    <button class="sideGroupTitle" type="button">▤ <span>Media</span><b>⌄</b></button>
+    <button class="sideGroupTitle" type="button"><span class="sideIcon">▤</span><span>Media</span><b>⌄</b></button>
     <div class="sideSub">
       <button data-tab="media">Storage</button>
       <button data-tab="media">Uploads</button>
@@ -284,7 +294,7 @@ header{left:248px!important}
   </div>
 
   <div class="sideGroup">
-    <button class="sideGroupTitle" type="button">⚙ <span>System</span><b>⌄</b></button>
+    <button class="sideGroupTitle" type="button"><span class="sideIcon">⚙</span><span>System</span><b>⌄</b></button>
     <div class="sideSub">
       <button data-tab="config">App Configuration</button>
       <button data-tab="config">App Versions</button>
@@ -297,9 +307,9 @@ header{left:248px!important}
   </div>
 
   <div class="sideBottom">
-    <button class="sideItem" data-tab="settings">⚙ <span>Settings</span></button>
-    <button class="sideItem" id="sideProfile" data-tab="settings">♙ <span>Admin Profile</span></button>
-    <button class="sideItem" id="sideLogout">⇥ <span>Logout</span></button>
+    <button class="sideItem" data-tab="settings"><span class="sideIcon">⚙</span><span>Settings</span></button>
+    <button class="sideItem" id="sideProfile" data-tab="settings"><span class="sideIcon">♙</span><span>Admin Profile</span></button>
+    <button class="sideItem" id="sideLogout"><span class="sideIcon">⇥</span><span>Logout</span></button>
   </div>
 </aside>
 
