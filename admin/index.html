@@ -177,14 +177,14 @@ header{left:248px!important}
  main#panel{margin-left:0!important}
  header{left:0!important}
 }
-</style>
+.adminTop{gap:10px!important}.adminTop #adminMenuBtn{display:none!important}@media(max-width:900px){.adminTop #adminMenuBtn{display:inline-flex!important;align-items:center;justify-content:center;padding:9px 12px!important}.adminTop{justify-content:space-between}.adminTop #logout{margin-left:0!important}}</style>
 </head>
 
 <body>
 
 <header>
  <div class="logo">CINEVA</div>
- <div class="adminTop"><input class="topSearch" placeholder="Search CINEVA..."><span id="adminStatus">● Secure Admin</span><button id="logout" class="gray">Logout</button></div>
+ <div class="adminTop"><button id="adminMenuBtn" class="gray" type="button" aria-label="Open menu">☰</button><input class="topSearch" placeholder="Search CINEVA..."><span id="adminStatus">● Secure Admin</span><button id="logout" class="gray">Logout</button></div>
 </header>
 
 <div id="login" class="card">
@@ -2352,6 +2352,7 @@ window.openTab=async id=>{await baseOpenTab(id);if(id==="episodes")loadModernEpi
     sideLogout.addEventListener("click",function(){ logout.click(); });
   }
 
+  const menuBtn=document.getElementById("adminMenuBtn"); if(menuBtn) menuBtn.addEventListener("click",function(){document.body.classList.toggle("adminMenuOpen");});
   const firstSide=document.querySelector('.sideItem[data-tab="dashboard"]');
   if(firstSide) firstSide.classList.add("activeSide");
 })();
