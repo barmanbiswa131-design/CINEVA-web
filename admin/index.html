@@ -218,11 +218,10 @@ header{left:248px!important}
   <button class="sideItem" data-tab="users"><span class="sideIcon">♙</span><span>Users</span></button>
   <button class="sideItem" data-tab="premium"><span class="sideIcon">◆</span><span>Premium</span></button>
   <button class="sideItem" data-tab="coins"><span class="sideIcon">●</span><span>Coins & Rewards</span></button>
-  <button class="sideItem" data-tab="analytics"><span class="sideIcon">◇</span><span>Engagement</span></button>
+  <button class="sideItem" data-tab="analytics"><span class="sideIcon">◇</span><span>Analytics</span></button>
   <button class="sideItem" data-tab="announcements"><span class="sideIcon">▱</span><span>Notifications</span></button>
   <button class="sideItem" data-tab="support"><span class="sideIcon">▰</span><span>Support</span></button>
   <button class="sideItem" data-tab="reports"><span class="sideIcon">!</span><span>Reports</span></button>
-  <button class="sideItem" data-tab="analytics"><span class="sideIcon">▥</span><span>Analytics</span></button>
   <button class="sideItem" data-tab="media"><span class="sideIcon">▤</span><span>Video Upload</span></button>
   <button class="sideItem" data-tab="config"><span class="sideIcon">⚙</span><span>App Configuration</span></button>
   <button class="sideItem" data-tab="security"><span class="sideIcon">◆</span><span>Security</span></button>
@@ -853,6 +852,20 @@ let editingId=null;
 
 const $=id=>document.getElementById(id);
 
+async function refreshAdminSession(){
+    const user=auth.currentUser;
+    if(!user) throw new Error("Admin is not signed in.");
+    await user.reload();
+    const tokenResult=await getIdTokenResult(user,true);
+    return {user,email:user.email||"",emailVerified:!!user.emailVerified,claims:tokenResult.claims||{}};
+}
+
+async function requireAdminSession(){
+    const session=await refreshAdminSession();
+    if(!session.email) throw new Error("The signed-in Firebase account has no email address.");
+    if(!session.emailVerified) throw new Error("Admin email is not verified. Verify the Firebase email, then sign in again.");
+    return session;
+}
 
 window.openTab=function(id){
 
@@ -909,17 +922,24 @@ $("loginMsg").innerHTML=
 $("logout").onclick=()=>signOut(auth);
 
 
-onAuthStateChanged(auth,user=>{
+onAuthStateChanged(auth,async user=>{
 
 if(user){
 
 $("login").style.display="none";
 $("panel").style.display="block";
 $("logout").style.display="block";
+$("adminStatus").textContent="● Checking admin session…";
 
-$("adminStatus").textContent="● "+(user.email||"Admin")+" • "+(user.emailVerified?"Verified":"Email not verified");
-
-loadAll();
+try{
+    const session=await refreshAdminSession();
+    $("adminStatus").textContent="● "+(session.email||"Admin")+" • "+(session.emailVerified?"Verified":"Email not verified");
+    await loadAll();
+}catch(e){
+    $("adminStatus").textContent="● "+(user.email||"Admin")+" • Admin check failed";
+    const msg=$("dashboardMsg");
+    if(msg){msg.className="message error";msg.textContent="Admin session check failed: "+(e?.message||String(e));}
+}
 
 }else{
 
@@ -933,6 +953,7 @@ $("logout").style.display="none";
 
 
 async function loadAll(){
+    await requireAdminSession();
     const jobs=[
         ["Movies",loadMovies],["Genres",loadGenres],["Series",loadSeries],
         ["Users",loadUsers],["Episodes",async()=>{if(window.fillEpisodeSeries) window.fillEpisodeSeries();}],
@@ -1608,6 +1629,7 @@ async function loadSeries(){
     }catch(e){
         $("seriesList").innerHTML=
         `<div class="error">${escapeHtml(e.message)}</div>`;
+        throw e;
     }
 }
 
@@ -1740,11 +1762,7 @@ if(modernSave)modernSave.onclick=()=>saveEpisode(true);
 async function loadUsers(){
     const box=$("userMsg");
     try{
-        const current=auth.currentUser;
-
-        if(!current){
-            throw new Error("Admin is not signed in.");
-        }
+        await requireAdminSession();
 
         if(box){
             box.className="message";
@@ -1808,6 +1826,7 @@ async function loadSupport(){
     }catch(e){
         $("ticketList").innerHTML=
         `<div class="error">${escapeHtml(e.message)}</div>`;
+        throw e;
     }
 }
 
@@ -1889,6 +1908,7 @@ async function loadReports(){
     }catch(e){
         $("reportList").innerHTML=
         `<div class="error">${escapeHtml(e.message)}</div>`;
+        throw e;
     }
 }
 
@@ -2036,6 +2056,13 @@ function dashSet(id,value){
 
 async function loadDashboard(){
     const msg=$("dashboardMsg");
+    try{
+        await requireAdminSession();
+    }catch(error){
+        if(msg){msg.className="message error";msg.textContent="Admin authorization failed: "+(error?.message||String(error));}
+        ["dashTotalUsers","dashActiveUsers","dashNewUsers","dashBlockedUsers","dashPremiumUsers","dashSeries","dashViews","dashCoins","dashTickets","dashReports"].forEach(id=>dashSet(id,"ERR"));
+        return;
+    }
     if(msg){
         msg.className="message";
         msg.textContent="Loading live Firestore data…";
@@ -2244,11 +2271,14 @@ window.loadSupport=loadSupport;
 window.loadReports=loadReports;
 window.loadEpisodes=loadEpisodes;
 window.loadDashboard=loadDashboard;
-window.getCinevaAdminAuthStatus=()=>({
-    email:auth.currentUser?.email||"",
-    emailVerified:!!auth.currentUser?.emailVerified,
-    uid:auth.currentUser?.uid||""
-});
+window.getCinevaAdminAuthStatus=async()=>{
+    try{
+        const session=await refreshAdminSession();
+        return {email:session.email,emailVerified:session.emailVerified,uid:session.user.uid,adminClaim:session.claims.admin===true,role:session.claims.role||null};
+    }catch(e){
+        return {email:auth.currentUser?.email||"",emailVerified:!!auth.currentUser?.emailVerified,uid:auth.currentUser?.uid||"",error:e?.message||String(e)};
+    }
+};
 
 /* Make Dashboard the first-class live page. */
 const dashboardTabBase=window.openTab;
