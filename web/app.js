@@ -851,6 +851,8 @@
 
     let cinevaMovies = [];
     let cinevaSeries = [];
+    let cinevaMoviesLoaded = false;
+    let cinevaSeriesLoaded = false;
 
     /* -------------------------
        LOAD MOVIES
@@ -876,6 +878,11 @@
 
         } catch (e) {
             console.error("CINEVA movies error:", e);
+        } finally {
+            cinevaMoviesLoaded = true;
+            if (typeof window.renderCinevaHome === "function") {
+                window.renderCinevaHome();
+            }
         }
     }
 
@@ -903,6 +910,11 @@
 
         } catch (e) {
             console.error("CINEVA series error:", e);
+        } finally {
+            cinevaSeriesLoaded = true;
+            if (typeof window.renderCinevaHome === "function") {
+                window.renderCinevaHome();
+            }
         }
     }
 
@@ -1062,6 +1074,17 @@
         if (!home) return;
 
         if (!Array.isArray(cinevaMovies) || !Array.isArray(cinevaSeries)) {
+            return;
+        }
+
+        if (!cinevaMoviesLoaded || !cinevaSeriesLoaded) {
+            if (!home.querySelector(".cineva-home-loading")) {
+                home.innerHTML = `
+                    <div class="cineva-home-loading" style="padding:60px 5%;text-align:center;">
+                        <p>Loading Cineva...</p>
+                    </div>
+                `;
+            }
             return;
         }
 
@@ -1313,12 +1336,27 @@
             if (p !== page) p.classList.remove("active");
         });
 
+        const returnPage =
+            (currentCinevaPage && document.getElementById(currentCinevaPage))
+                ? currentCinevaPage
+                : "home";
+
         const back = document.getElementById("firebaseMovieBack");
 
         if (back) {
             back.onclick = function () {
                 page.remove();
-                activatePage(currentCinevaPage || "home");
+
+                if (typeof window.showPage === "function") {
+                    window.showPage(returnPage, false);
+                } else {
+                    activatePage(returnPage);
+                }
+
+                const restored = document.getElementById(returnPage);
+                if (restored) restored.classList.add("active");
+
+                window.scrollTo(0, 0);
             };
         }
 
@@ -1615,19 +1653,53 @@
 
     async function initCinevaFirebaseCatalog() {
 
+        const home = document.getElementById("cinevaHome");
+
         if (
             typeof firebase === "undefined" ||
             !firebase.apps ||
             !firebase.apps.length
         ) {
             console.warn("CINEVA Firebase not initialized.");
+            if (home) {
+                home.innerHTML = `
+                    <div class="cineva-home-empty" style="padding:60px 5%;text-align:center;">
+                        <h2>Cineva is loading</h2>
+                        <p>Firebase connection is not ready. Please refresh.</p>
+                    </div>
+                `;
+            }
             return;
         }
 
-        await Promise.all([
+        if (home) {
+            home.innerHTML = `
+                <div class="cineva-home-loading" style="padding:60px 5%;text-align:center;">
+                    <p>Loading Cineva...</p>
+                </div>
+            `;
+        }
+
+        const timeout = setTimeout(function () {
+            if (!cinevaMoviesLoaded || !cinevaSeriesLoaded) {
+                const target = document.getElementById("cinevaHome");
+                if (target) {
+                    target.innerHTML = `
+                        <div class="cineva-home-empty" style="padding:60px 5%;text-align:center;">
+                            <h2>Unable to load Cineva</h2>
+                            <p>Please check your internet connection and refresh.</p>
+                        </div>
+                    `;
+                }
+            }
+        }, 8000);
+
+        await Promise.allSettled([
             loadCinevaMovies(),
             loadCinevaSeries()
         ]);
+
+        clearTimeout(timeout);
 
         if (typeof window.renderCinevaHome === "function") {
             window.renderCinevaHome();
