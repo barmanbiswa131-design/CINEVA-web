@@ -50,6 +50,19 @@
     };
 
     window.goCinevaBack = function () {
+        // Detail pages are temporary overlays. Return to the page that opened them.
+        const movieDetails = document.getElementById("cinevaFirebaseDetails");
+        const seriesDetails = document.getElementById("cinevaFirebaseSeriesDetails");
+
+        if (movieDetails || seriesDetails) {
+            if (movieDetails) movieDetails.remove();
+            if (seriesDetails) seriesDetails.remove();
+
+            // currentCinevaPage remains the real page underneath the detail view.
+            activatePage(currentCinevaPage || "home");
+            return;
+        }
+
         const dynamic = document.getElementById("cinevaDynamicPage");
 
         if (dynamic) {
@@ -1284,7 +1297,7 @@
         if (back) {
             back.onclick = function () {
                 page.remove();
-                activatePage("home");
+                activatePage(currentCinevaPage || "home");
             };
         }
 
@@ -1430,7 +1443,7 @@
         if (back) {
             back.onclick = function () {
                 page.remove();
-                activatePage("home");
+                activatePage(currentCinevaPage || "home");
             };
         }
 
