@@ -407,7 +407,9 @@
 
         if (play) {
             play.onclick = function() {
-                if (video) window.open(video, "_blank");
+                if (video) {
+                    window.location.href = video;
+                }
             };
         }
 
@@ -1423,7 +1425,7 @@
         if (play) {
             play.onclick = function () {
                 if (video) {
-                    window.open(video, "_blank");
+                    window.location.href = video;
                 }
             };
         }
