@@ -573,7 +573,7 @@
        INITIAL STATE
        ========================= */
 
-    async function recordCinevaUserActivity(user) {
+    window.recordCinevaUserActivity = async function recordCinevaUserActivity(user) {
         if (!user || !cinevaFirebaseReady()) return;
 
         try {
@@ -596,7 +596,7 @@
         } catch (error) {
             console.log("CINEVA user activity:", error);
         }
-    }
+    };
 
     document.addEventListener("DOMContentLoaded", function () {
         const dynamic =
