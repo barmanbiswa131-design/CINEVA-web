@@ -1,0 +1,49 @@
+name: Build CINEVA Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "app/**"
+      - ".github/workflows/android.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
+
+      - name: Build debug APK
+        run: ./gradlew :app:assembleDebug
+
+      - name: Publish CINEVA.apk
+        uses: actions/upload-artifact@v4
+        with:
+          name: CINEVA-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Copy APK to repository root
+        run: cp app/build/outputs/apk/debug/app-debug.apk CINEVA.apk
+
+      - name: Commit APK
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: "CINEVA.apk"
+          message: "Build CINEVA Android APK"
+          default_author: github_actions
