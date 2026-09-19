@@ -1288,6 +1288,30 @@
             };
         }
 
+        const listBtn = document.getElementById("firebaseMyListButton");
+        if (listBtn) {
+            const saved = typeof window.cinevaCloudGetList === "function"
+                ? window.cinevaCloudGetList()
+                : [];
+            listBtn.textContent = saved.includes(title)
+                ? "✓ Remove from My List"
+                : "＋ My List";
+            listBtn.onclick = async function () {
+                const user = firebase.auth().currentUser;
+                if (!user || user.isAnonymous) {
+                    alert("Please sign in to use My List.");
+                    return;
+                }
+                if (typeof window.cinevaCloudToggleList === "function") {
+                    await window.cinevaCloudToggleList(title);
+                    const updated = window.cinevaCloudGetList();
+                    listBtn.textContent = updated.includes(title)
+                        ? "✓ Remove from My List"
+                        : "＋ My List";
+                }
+            };
+        }
+
         const play = document.getElementById("firebasePlayButton");
 
         if (play) {
