@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - "app/**"
+      - "gradle.properties"
       - "build.gradle"
       - "settings.gradle"
       - ".github/workflows/android.yml"
@@ -39,12 +40,12 @@ jobs:
           name: CINEVA-APK
           path: app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Copy APK to repository root
-        run: cp app/build/outputs/apk/debug/app-debug.apk CINEVA.apk
+      - name: Copy APK for GitHub Pages
+        run: cp app/build/outputs/apk/debug/app-debug.apk web/CINEVA.apk
 
       - name: Commit APK
         uses: EndBug/add-and-commit@v9
         with:
-          add: "CINEVA.apk"
+          add: "web/CINEVA.apk"
           message: "Build CINEVA Android APK"
           default_author: github_actions
