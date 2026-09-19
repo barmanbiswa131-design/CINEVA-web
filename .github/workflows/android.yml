@@ -31,21 +31,37 @@ jobs:
         with:
           gradle-version: "8.7"
 
-      - name: Build debug APK
-        run: gradle :app:assembleDebug
+      - name: Prepare persistent signing key
+        env:
+          CINEVA_KEYSTORE_BASE64: ${{ secrets.CINEVA_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$CINEVA_KEYSTORE_BASE64" || { echo "CINEVA_KEYSTORE_BASE64 secret is missing."; exit 1; }
+          echo "$CINEVA_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/cineva-release.jks"
+
+      - name: Build signed CINEVA release APK
+        env:
+          CINEVA_KEYSTORE_FILE: ${{ runner.temp }}/cineva-release.jks
+          CINEVA_KEYSTORE_PASSWORD: ${{ secrets.CINEVA_KEYSTORE_PASSWORD }}
+          CINEVA_KEY_ALIAS: ${{ secrets.CINEVA_KEY_ALIAS }}
+          CINEVA_KEY_PASSWORD: ${{ secrets.CINEVA_KEY_PASSWORD }}
+        run: |
+          test -n "$CINEVA_KEYSTORE_PASSWORD" || { echo "CINEVA_KEYSTORE_PASSWORD secret is missing."; exit 1; }
+          test -n "$CINEVA_KEY_ALIAS" || { echo "CINEVA_KEY_ALIAS secret is missing."; exit 1; }
+          test -n "$CINEVA_KEY_PASSWORD" || { echo "CINEVA_KEY_PASSWORD secret is missing."; exit 1; }
+          gradle :app:assembleRelease
 
       - name: Publish CINEVA APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: CINEVA-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/release/app-release.apk
 
       - name: Copy APK for GitHub Pages
-        run: cp app/build/outputs/apk/debug/app-debug.apk web/CINEVA.apk
+        run: cp app/build/outputs/apk/release/app-release.apk web/CINEVA.apk
 
       - name: Commit APK
         uses: EndBug/add-and-commit@v9
         with:
           add: "web/CINEVA.apk"
-          message: "Build CINEVA Android APK"
+          message: "Build signed CINEVA Android APK"
           default_author: github_actions
