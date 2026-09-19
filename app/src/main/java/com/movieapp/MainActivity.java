@@ -25,6 +25,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -67,6 +68,7 @@ public class MainActivity extends Activity {
 
 
     ArrayList<HashMap<String,Object>> firebaseMovies = new ArrayList<>();
+    ListenerRegistration firebaseMoviesListener;
 
     FrameLayout page;
     TextView logo;
@@ -646,39 +648,80 @@ public class MainActivity extends Activity {
     }
 
     void loadFirebaseMovies() {
-        db.collection("movies")
-            .get()
-            .addOnSuccessListener(snapshot -> {
-                android.util.Log.d("CINEVA_FIREBASE",
-                    "MOVIES FOUND = " + snapshot.size());
-                firebaseMovies.clear();
+        if (db == null) return;
 
-                for (com.google.firebase.firestore.DocumentSnapshot d : snapshot.getDocuments()) {
-                    HashMap<String,Object> movie = new HashMap<>();
-                    movie.put("id", d.getId());
-                    movie.putAll(d.getData());
-                    firebaseMovies.add(movie);
+        // Keep the Android catalog synced with Admin/Firestore in real time.
+        if (firebaseMoviesListener != null) {
+            firebaseMoviesListener.remove();
+        }
+
+        firebaseMoviesListener = db.collection("movies")
+            .addSnapshotListener((snapshot, error) -> {
+                if (error != null) {
+                    android.util.Log.e(
+                        "CINEVA_FIREBASE",
+                        "Movie listener failed: " + error.getMessage(),
+                        error
+                    );
+                    return;
                 }
 
+                if (snapshot == null) return;
+
+                ArrayList<HashMap<String,Object>> latestMovies =
+                    new ArrayList<>();
+
+                for (com.google.firebase.firestore.DocumentSnapshot d
+                        : snapshot.getDocuments()) {
+                    if (!d.exists()) continue;
+
+                    HashMap<String,Object> movie =
+                        new HashMap<>();
+
+                    movie.put("id", d.getId());
+
+                    Map<String,Object> data = d.getData();
+                    if (data != null) {
+                        movie.putAll(data);
+                    }
+
+                    // Admin-created movie documents must have a usable title.
+                    Object title = movie.get("title");
+                    if (title != null &&
+                        !String.valueOf(title).trim().isEmpty()) {
+                        latestMovies.add(movie);
+                    }
+                }
+
+                firebaseMovies.clear();
+                firebaseMovies.addAll(latestMovies);
+
+                android.util.Log.d(
+                    "CINEVA_FIREBASE",
+                    "MOVIES SYNCED = " + firebaseMovies.size()
+                );
+
                 runOnUiThread(() -> {
-                    // Do not interrupt the intro splash.
-                    // Home will open only after the intro video ends.
-                    if (!isSplashShowing) {
-                        if (auth != null && auth.getCurrentUser() != null) {
-                            showHome();
-                        }
+                    // Never interrupt the intro or a movie/detail screen.
+                    // Home refreshes automatically when the catalog changes.
+                    if (!isSplashShowing &&
+                        auth != null &&
+                        auth.getCurrentUser() != null &&
+                        "home".equals(currentScreen)) {
+                        showHome();
                     }
                 });
-            })
-            .addOnFailureListener(e -> {
-                runOnUiThread(() -> {
-                    Toast.makeText(
-                        this,
-                        "Firebase: " + e.getMessage(),
-                        Toast.LENGTH_LONG
-                    ).show();
-                });
             });
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (firebaseMoviesListener != null) {
+            firebaseMoviesListener.remove();
+            firebaseMoviesListener = null;
+        }
+
+        super.onDestroy();
     }
 
     String[] getFirebaseMovieTitles() {
