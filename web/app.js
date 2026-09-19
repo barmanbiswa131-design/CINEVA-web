@@ -255,6 +255,13 @@
         const trailer = movie.trailerUrl || "";
         const description = movie.description || "No description available.";
 
+        // Remember exactly where the movie was opened from.
+        // This prevents the Back button from leaving the SPA on a blank page.
+        const returnPage =
+            (currentCinevaPage && document.getElementById(currentCinevaPage))
+                ? currentCinevaPage
+                : "home";
+
         const app = document.getElementById("app");
         if (!app) return;
 
@@ -333,7 +340,21 @@
         if (back) {
             back.onclick = function() {
                 page.remove();
-                activatePage("home");
+
+                // Restore the page that opened the movie.
+                // Use showPage(false) so it does not create another history entry.
+                if (typeof window.showPage === "function") {
+                    window.showPage(returnPage || "home", false);
+                } else {
+                    activatePage(returnPage || "home");
+                }
+
+                // Make sure the real home page is visible even if the
+                // temporary movie page was the only active page.
+                const restored = document.getElementById(returnPage || "home");
+                if (restored) restored.classList.add("active");
+
+                window.scrollTo(0, 0);
             };
         }
 
