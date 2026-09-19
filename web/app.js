@@ -86,6 +86,40 @@
         window.goCinevaBack();
     });
 
+    /* CINEVA movie-detail Back fallback
+       Uses event delegation so the Back button remains clickable
+       even if the dynamic detail page is rebound/re-rendered. */
+    document.addEventListener("click", function (event) {
+        const backButton = event.target.closest("#firebaseMovieBack");
+        if (!backButton) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const detail = document.getElementById("cinevaFirebaseDetails");
+        if (detail) detail.remove();
+
+        const targetPage =
+            (currentCinevaPage && document.getElementById(currentCinevaPage))
+                ? currentCinevaPage
+                : "home";
+
+        document.querySelectorAll(".page").forEach(function (p) {
+            p.classList.remove("active");
+        });
+
+        const target = document.getElementById(targetPage);
+        if (target) {
+            target.classList.add("active");
+        } else {
+            const home = document.getElementById("home");
+            if (home) home.classList.add("active");
+            currentCinevaPage = "home";
+        }
+
+        window.scrollTo(0, 0);
+    }, true);
+
     /* =========================
        SEARCH
        ========================= */
