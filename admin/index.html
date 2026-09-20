@@ -2354,37 +2354,27 @@ $("cfgSave").onclick=async()=>{
 
 
 <script>
-/* CINEVA LOGIN BOOTSTRAP: isolated from the large admin module so login still works if another admin feature has a runtime error. */
+/* CINEVA LOGIN BOOTSTRAP: use the single Firebase Auth instance initialized above. */
 (function(){
   const btn=document.getElementById("loginBtn");
   const msg=document.getElementById("loginMsg");
   if(!btn) return;
+
   btn.addEventListener("click",async function(){
     const email=(document.getElementById("email")?.value||"").trim();
     const password=document.getElementById("password")?.value||"";
+
     if(!email||!password){
       if(msg){msg.className="message error";msg.textContent="Enter admin email and password.";}
       return;
     }
+
     btn.disabled=true;
     btn.textContent="Logging in…";
     if(msg){msg.className="message";msg.textContent="Connecting to Firebase…";}
+
     try{
-      const [{initializeApp,getApps,getApp},{getAuth,signInWithEmailAndPassword}]=await Promise.all([
-        import("https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js"),
-        import("https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js")
-      ]);
-      const loginApp=getApps().length ? getApp() : initializeApp({
-        apiKey:"AIzaSyAfXYOk6euvJHY5jpbl3y0JYxw_OnjC2wc",
-        authDomain:"cineva-admin.firebaseapp.com",
-        projectId:"cineva-admin",
-        storageBucket:"cineva-admin.firebasestorage.app",
-        messagingSenderId:"496503778333",
-        appId:"1:496503778333:web:58d1e90513d2c9fa3baaf4",
-        measurementId:"G-M8TCQB3XXS"
-      });
-      const loginAuth=getAuth(loginApp);
-      await signInWithEmailAndPassword(loginAuth,email,password);
+      await signInWithEmailAndPassword(auth,email,password);
       if(msg){msg.className="message success";msg.textContent="Login successful. Opening Admin…";}
       setTimeout(()=>location.reload(),250);
     }catch(e){
@@ -2397,8 +2387,7 @@ $("cfgSave").onclick=async()=>{
       btn.textContent="Login";
     }
   });
-})();
-</script>
+})();</script>
 
 </body>
 </html>
