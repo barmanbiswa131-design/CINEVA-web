@@ -1229,6 +1229,92 @@
 })();
 
 /* -------------------------
+       CINEVA IN-APP WEB PLAYER
+       ------------------------- */
+
+window.playCinevaWebVideo = function (title, url) {
+    if (!url) return;
+
+    const old = document.getElementById("cinevaWebPlayerOverlay");
+    if (old) old.remove();
+
+    const overlay = document.createElement("div");
+    overlay.id = "cinevaWebPlayerOverlay";
+    overlay.style.cssText = "position:fixed;inset:0;background:#000;z-index:99999;display:flex;flex-direction:column;color:#fff";
+
+    overlay.innerHTML = `
+        <div style="height:58px;display:flex;align-items:center;gap:12px;padding:0 14px;background:rgba(0,0,0,.92);flex:none">
+            <button id="cinevaWebPlayerClose" style="border:0;background:transparent;color:#fff;font-size:32px;line-height:1;cursor:pointer">‹</button>
+            <div style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1">${safe(title || "CINEVA")}</div>
+        </div>
+        <div id="cinevaWebVideoBox" style="flex:1;display:flex;align-items:center;justify-content:center;background:#000;min-height:0">
+            <video id="cinevaWebVideo" controls playsinline style="width:100%;height:100%;object-fit:contain;background:#000"></video>
+        </div>
+        <div id="cinevaWebPlayerStatus" style="display:none;padding:10px 14px;background:#111;color:#aaa;font-size:13px;text-align:center"></div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const video = document.getElementById("cinevaWebVideo");
+    const status = document.getElementById("cinevaWebPlayerStatus");
+    const close = document.getElementById("cinevaWebPlayerClose");
+
+    close.onclick = function () {
+        try { video.pause(); } catch (_) {}
+        const hls = video._cinevaHls;
+        if (hls) { try { hls.destroy(); } catch (_) {} }
+        overlay.remove();
+    };
+
+    function showStatus(message) {
+        status.textContent = message;
+        status.style.display = "block";
+    }
+
+    video.onerror = function () {
+        showStatus("This URL is not a playable direct video stream. Use an authorized MP4 or HLS (.m3u8) URL.");
+    };
+
+    const lower = String(url).toLowerCase();
+
+    if (lower.includes(".m3u8")) {
+        if (video.canPlayType("application/vnd.apple.mpegurl")) {
+            video.src = url;
+            video.play().catch(() => {});
+        } else if (window.Hls && window.Hls.isSupported()) {
+            const hls = new window.Hls();
+            video._cinevaHls = hls;
+            hls.loadSource(url);
+            hls.attachMedia(video);
+            hls.on(window.Hls.Events.MANIFEST_PARSED, function () {
+                video.play().catch(() => {});
+            });
+            hls.on(window.Hls.Events.ERROR, function (_event, data) {
+                if (data && data.fatal) showStatus("HLS stream could not be played. Check the stream URL and CORS/hosting permission.");
+            });
+        } else {
+            showStatus("HLS playback is not available in this browser.");
+        }
+    } else {
+        video.src = url;
+        video.play().catch(() => {});
+    }
+};
+
+window.loadCinevaHlsIfNeeded = function (callback) {
+    if (window.Hls) { callback(); return; }
+    const existing = document.querySelector("script[data-cineva-hls]");
+    if (existing) { existing.addEventListener("load", callback, {once:true}); return; }
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/hls.js@1.6.2/dist/hls.min.js";
+    script.async = true;
+    script.dataset.cinevaHls = "1";
+    script.onload = callback;
+    script.onerror = function () { callback(); };
+    document.head.appendChild(script);
+};
+
+/* -------------------------
        MOVIE DETAILS
        ------------------------- */
 
@@ -1425,7 +1511,11 @@
         if (play) {
             play.onclick = function () {
                 if (video) {
-                    window.location.href = video;
+                    if (video.toLowerCase().includes(".m3u8")) {
+                        window.loadCinevaHlsIfNeeded(function(){ window.playCinevaWebVideo(title, video); });
+                    } else {
+                        window.playCinevaWebVideo(title, video);
+                    }
                 }
             };
         }
@@ -1436,7 +1526,11 @@
         if (trailerButton) {
             trailerButton.onclick = function () {
                 if (trailer) {
-                    window.open(trailer, "_blank");
+                    if (trailer.toLowerCase().includes(".m3u8")) {
+                        window.loadCinevaHlsIfNeeded(function(){ window.playCinevaWebVideo(title + " • Trailer", trailer); });
+                    } else {
+                        window.playCinevaWebVideo(title + " • Trailer", trailer);
+                    }
                 }
             };
         }
@@ -1620,7 +1714,12 @@
                         "";
 
                     if (video) {
-                        window.open(video, "_blank");
+                        const episodeTitle = "Episode " + number + (episode.title ? " • " + episode.title : "");
+                        if (video.toLowerCase().includes(".m3u8")) {
+                            window.loadCinevaHlsIfNeeded(function(){ window.playCinevaWebVideo(episodeTitle, video); });
+                        } else {
+                            window.playCinevaWebVideo(episodeTitle, video);
+                        }
                     } else {
                         cinevaMessage(
                             "Episode",
