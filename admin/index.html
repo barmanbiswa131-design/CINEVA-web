@@ -997,8 +997,7 @@ return;
 
 $("movieList").innerHTML="";
 
-list.forEach(m=>{
-const div=document.createElement("div");
+list.forEach(m=>{const div=document.createElement("div");
 div.className="movie";
 
 div.innerHTML=`
@@ -1997,8 +1996,7 @@ async function uploadFile(inputId,folder){
             }
         );
     }catch(e){
-        $("uploadProgress").innerHTML=
-        `<div class="error">${escapeHtml(e.message)}</div>`;
+        $("uploadProgress").innerHTML=        `<div class="error">${escapeHtml(e.message)}</div>`;
     }
 }
 
@@ -2270,6 +2268,32 @@ window.getCinevaAdminAuthStatus=async()=>{
 
 window.cinevaLogin=async(email,password)=>signInWithEmailAndPassword(auth,email,password);
 
+const loginBtn=document.getElementById("loginBtn");
+const loginMsg=document.getElementById("loginMsg");
+if(loginBtn){
+ loginBtn.addEventListener("click",async()=>{
+  const email=(document.getElementById("email")?.value||"").trim();
+  const password=document.getElementById("password")?.value||"";
+  if(!email||!password){
+   if(loginMsg){loginMsg.className="message error";loginMsg.textContent="Enter admin email and password.";}
+   return;
+  }
+  loginBtn.disabled=true;
+  loginBtn.textContent="Logging in…";
+  if(loginMsg){loginMsg.className="message";loginMsg.textContent="Connecting to Firebase…";}
+  try{
+   await signInWithEmailAndPassword(auth,email,password);
+   if(loginMsg){loginMsg.className="message success";loginMsg.textContent="Login successful. Opening Admin…";}
+   setTimeout(()=>location.reload(),250);
+  }catch(e){
+   console.error("CINEVA login failed:",e);
+   if(loginMsg){loginMsg.className="message error";loginMsg.textContent="Login failed ["+(e?.code||"unknown")+"]: "+(e?.message||String(e));}
+   loginBtn.disabled=false;
+   loginBtn.textContent="Login";
+  }
+ });
+}
+
 console.log("CINEVA Complete Admin System loaded.");
 
 window.loadAnalytics=async function(){
@@ -2353,42 +2377,7 @@ $("cfgSave").onclick=async()=>{
 </script>
 
 
-<script>
-/* CINEVA LOGIN BOOTSTRAP: call the Firebase Auth function exposed by the module script. */
-(function(){
-  const btn=document.getElementById("loginBtn");
-  const msg=document.getElementById("loginMsg");
-  if(!btn) return;
 
-  btn.addEventListener("click",async function(){
-    const email=(document.getElementById("email")?.value||"").trim();
-    const password=document.getElementById("password")?.value||"";
-
-    if(!email||!password){
-      if(msg){msg.className="message error";msg.textContent="Enter admin email and password.";}
-      return;
-    }
-
-    btn.disabled=true;
-    btn.textContent="Logging in…";
-    if(msg){msg.className="message";msg.textContent="Connecting to Firebase…";}
-
-    try{
-      if(typeof window.cinevaLogin!=="function") throw new Error("Firebase Auth is still loading. Please try again.");
-      await window.cinevaLogin(email,password);
-      if(msg){msg.className="message success";msg.textContent="Login successful. Opening Admin…";}
-      setTimeout(()=>location.reload(),250);
-    }catch(e){
-      console.error("CINEVA login failed:",e);
-      if(msg){
-        msg.className="message error";
-        msg.textContent="Login failed ["+(e?.code||"unknown")+"]: "+(e?.message||String(e));
-      }
-      btn.disabled=false;
-      btn.textContent="Login";
-    }
-  });
-})();</script>
 
 </body>
 </html>
