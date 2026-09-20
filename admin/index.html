@@ -2288,7 +2288,9 @@ if(loginBtn){
    $("panel").style.display="block";
    $("logout").style.display="block";
    $("adminStatus").textContent="● "+(auth.currentUser?.email||"Admin")+" • "+(auth.currentUser?.emailVerified?"Verified":"Email not verified");
-   openTab("dashboard");
+   document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
+   const dashboardSection=$("dashboard");
+   if(dashboardSection) dashboardSection.classList.add("active");
    loadAll().catch(e=>{
     console.error("CINEVA Admin load after login failed:",e);
     const msg=$("dashboardMsg");
