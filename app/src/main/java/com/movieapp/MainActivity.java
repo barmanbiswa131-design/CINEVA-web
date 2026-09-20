@@ -1949,9 +1949,9 @@ public class MainActivity extends Activity {
                     .setItems(options,(dialog,which) -> {
 
                         if(which == 0) {
-                            openUrl(videoUrl);
+                            playVideo(title, videoUrl, false);
                         } else {
-                            openUrl(trailerUrl);
+                            playVideo(title, trailerUrl, true);
                         }
 
                     })
@@ -1959,11 +1959,11 @@ public class MainActivity extends Activity {
 
             } else if(!videoUrl.isEmpty()) {
 
-                openUrl(videoUrl);
+                playVideo(title, videoUrl, false);
 
             } else if(!trailerUrl.isEmpty()) {
 
-                openUrl(trailerUrl);
+                playVideo(title, trailerUrl, true);
 
             } else {
 
@@ -2097,9 +2097,23 @@ public class MainActivity extends Activity {
         screenHistory.add(currentScreen);
         currentScreen = "player";
 
+        String cleanUrl = url == null ? "" : url.trim();
+        if (cleanUrl.isEmpty()) {
+            Toast.makeText(this, "Video URL is empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String lowerUrl = cleanUrl.toLowerCase(java.util.Locale.US);
+        String mimeType = "";
+        if (lowerUrl.contains(".m3u8")) {
+            mimeType = androidx.media3.common.MimeTypes.APPLICATION_M3U8;
+        } else if (lowerUrl.contains(".mp4")) {
+            mimeType = androidx.media3.common.MimeTypes.VIDEO_MP4;
+        }
+
         showCinevaPlayer(
-            Uri.parse(url),
-            "",
+            Uri.parse(cleanUrl),
+            mimeType,
             trailer ? "Trailer" : title,
             false
         );
@@ -2625,6 +2639,17 @@ public class MainActivity extends Activity {
         player.play();
 
         playerView.setTag(player);
+
+        player.addListener(new androidx.media3.common.Player.Listener() {
+            @Override
+            public void onPlayerError(androidx.media3.common.PlaybackException error) {
+                Toast.makeText(
+                    MainActivity.this,
+                    "Video could not be played. Check that the URL is a direct/authorized video stream.",
+                    Toast.LENGTH_LONG
+                ).show();
+            }
+        });
 
         // =====================================================
         // PLAY / PAUSE
