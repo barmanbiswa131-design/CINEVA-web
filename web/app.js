@@ -408,7 +408,7 @@
         if (play) {
             play.onclick = function() {
                 if (video) {
-                    window.location.href = video;
+                    window.playCinevaWebVideo(title, video);
                 }
             };
         }
@@ -418,7 +418,7 @@
 
         if (trailerButton) {
             trailerButton.onclick = function() {
-                if (trailer) window.open(trailer, "_blank");
+                if (trailer) window.playCinevaWebVideo(title + " • Trailer", trailer);
             };
         }
 
