@@ -2284,7 +2284,18 @@ if(loginBtn){
   try{
    await signInWithEmailAndPassword(auth,email,password);
    if(loginMsg){loginMsg.className="message success";loginMsg.textContent="Login successful. Opening Admin…";}
-   setTimeout(()=>location.reload(),250);
+   $("login").style.display="none";
+   $("panel").style.display="block";
+   $("logout").style.display="block";
+   $("adminStatus").textContent="● "+(auth.currentUser?.email||"Admin")+" • "+(auth.currentUser?.emailVerified?"Verified":"Email not verified");
+   openTab("dashboard");
+   loadAll().catch(e=>{
+    console.error("CINEVA Admin load after login failed:",e);
+    const msg=$("dashboardMsg");
+    if(msg){msg.className="message error";msg.textContent="Admin data load failed: "+(e?.message||String(e));}
+   });
+   loginBtn.disabled=false;
+   loginBtn.textContent="Login";
   }catch(e){
    console.error("CINEVA login failed:",e);
    if(loginMsg){loginMsg.className="message error";loginMsg.textContent="Login failed ["+(e?.code||"unknown")+"]: "+(e?.message||String(e));}
