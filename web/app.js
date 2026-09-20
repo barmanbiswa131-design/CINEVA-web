@@ -1255,9 +1255,62 @@ window.playCinevaWebVideo = function (title, url) {
 
     document.body.appendChild(overlay);
 
+    const box = document.getElementById("cinevaWebVideoBox");
     const video = document.getElementById("cinevaWebVideo");
     const status = document.getElementById("cinevaWebPlayerStatus");
     const close = document.getElementById("cinevaWebPlayerClose");
+
+    function showStatus(message) {
+        status.textContent = message;
+        status.style.display = "block";
+    }
+
+    function getYouTubeId(value) {
+        try {
+            const parsed = new URL(value);
+            const host = parsed.hostname.toLowerCase().replace(/^www\\./, "");
+
+            if (host === "youtu.be") {
+                return parsed.pathname.split("/").filter(Boolean)[0] || null;
+            }
+
+            if (host === "youtube.com" || host === "m.youtube.com") {
+                if (parsed.pathname === "/watch") {
+                    return parsed.searchParams.get("v");
+                }
+
+                const parts = parsed.pathname.split("/").filter(Boolean);
+
+                if (parts[0] === "embed" || parts[0] === "shorts") {
+                    return parts[1] || null;
+                }
+            }
+        } catch (_) {}
+
+        return null;
+    }
+
+    const youtubeId = getYouTubeId(String(url).trim());
+
+    if (youtubeId) {
+        // Official YouTube embed player. This stays inside the CINEVA player screen.
+        box.innerHTML = `
+            <iframe
+                id="cinevaYouTubeFrame"
+                src="https://www.youtube.com/embed/${encodeURIComponent(youtubeId)}?autoplay=1&rel=0"
+                title="${safe(title || "CINEVA")}"
+                style="width:100%;height:100%;border:0;background:#000"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowfullscreen>
+            </iframe>
+        `;
+
+        close.onclick = function () {
+            overlay.remove();
+        };
+
+        return;
+    }
 
     close.onclick = function () {
         try { video.pause(); } catch (_) {}
@@ -1265,11 +1318,6 @@ window.playCinevaWebVideo = function (title, url) {
         if (hls) { try { hls.destroy(); } catch (_) {} }
         overlay.remove();
     };
-
-    function showStatus(message) {
-        status.textContent = message;
-        status.style.display = "block";
-    }
 
     video.onerror = function () {
         showStatus("This URL is not a playable direct video stream. Use an authorized MP4 or HLS (.m3u8) URL.");
@@ -1289,11 +1337,13 @@ window.playCinevaWebVideo = function (title, url) {
             hls.on(window.Hls.Events.MANIFEST_PARSED, function () {
                 video.play().catch(() => {});
             });
-            hls.on(window.Hls.Events.ERROR, function (_event, data) {
-                if (data && data.fatal) showStatus("HLS stream could not be played. Check the stream URL and CORS/hosting permission.");
+            hls.on(window.Hls.Events.ERROR, function (_, data) {
+                if (data && data.fatal) {
+                    showStatus("HLS stream could not be played.");
+                }
             });
         } else {
-            showStatus("HLS playback is not available in this browser.");
+            showStatus("This browser does not support HLS playback.");
         }
     } else {
         video.src = url;
