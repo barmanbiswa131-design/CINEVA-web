@@ -998,7 +998,6 @@ return;
 $("movieList").innerHTML="";
 
 list.forEach(m=>{
-
 const div=document.createElement("div");
 div.className="movie";
 
@@ -1997,7 +1996,6 @@ async function uploadFile(inputId,folder){
                 }catch(_){}
             }
         );
-
     }catch(e){
         $("uploadProgress").innerHTML=
         `<div class="error">${escapeHtml(e.message)}</div>`;
@@ -2270,6 +2268,8 @@ window.getCinevaAdminAuthStatus=async()=>{
     }
 };
 
+window.cinevaLogin=async(email,password)=>signInWithEmailAndPassword(auth,email,password);
+
 console.log("CINEVA Complete Admin System loaded.");
 
 window.loadAnalytics=async function(){
@@ -2354,7 +2354,7 @@ $("cfgSave").onclick=async()=>{
 
 
 <script>
-/* CINEVA LOGIN BOOTSTRAP: use the single Firebase Auth instance initialized above. */
+/* CINEVA LOGIN BOOTSTRAP: call the Firebase Auth function exposed by the module script. */
 (function(){
   const btn=document.getElementById("loginBtn");
   const msg=document.getElementById("loginMsg");
@@ -2374,7 +2374,8 @@ $("cfgSave").onclick=async()=>{
     if(msg){msg.className="message";msg.textContent="Connecting to Firebase…";}
 
     try{
-      await signInWithEmailAndPassword(auth,email,password);
+      if(typeof window.cinevaLogin!=="function") throw new Error("Firebase Auth is still loading. Please try again.");
+      await window.cinevaLogin(email,password);
       if(msg){msg.className="message success";msg.textContent="Login successful. Opening Admin…";}
       setTimeout(()=>location.reload(),250);
     }catch(e){
