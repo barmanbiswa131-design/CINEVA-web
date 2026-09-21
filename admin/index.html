@@ -2268,44 +2268,7 @@ window.getCinevaAdminAuthStatus=async()=>{
 
 window.cinevaLogin=async(email,password)=>signInWithEmailAndPassword(auth,email,password);
 
-const loginBtn=document.getElementById("loginBtn");
-const loginMsg=document.getElementById("loginMsg");
-if(loginBtn){
- loginBtn.addEventListener("click",async()=>{
-  const email=(document.getElementById("email")?.value||"").trim();
-  const password=document.getElementById("password")?.value||"";
-  if(!email||!password){
-   if(loginMsg){loginMsg.className="message error";loginMsg.textContent="Enter admin email and password.";}
-   return;
-  }
-  loginBtn.disabled=true;
-  loginBtn.textContent="Logging in…";
-  if(loginMsg){loginMsg.className="message";loginMsg.textContent="Connecting to Firebase…";}
-  try{
-   await signInWithEmailAndPassword(auth,email,password);
-   if(loginMsg){loginMsg.className="message success";loginMsg.textContent="Login successful. Opening Admin…";}
-   $("login").style.display="none";
-   $("panel").style.display="block";
-   $("logout").style.display="block";
-   $("adminStatus").textContent="● "+(auth.currentUser?.email||"Admin")+" • "+(auth.currentUser?.emailVerified?"Verified":"Email not verified");
-   document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
-   const dashboardSection=$("dashboard");
-   if(dashboardSection) dashboardSection.classList.add("active");
-   loadAll().catch(e=>{
-    console.error("CINEVA Admin load after login failed:",e);
-    const msg=$("dashboardMsg");
-    if(msg){msg.className="message error";msg.textContent="Admin data load failed: "+(e?.message||String(e));}
-   });
-   loginBtn.disabled=false;
-   loginBtn.textContent="Login";
-  }catch(e){
-   console.error("CINEVA login failed:",e);
-   if(loginMsg){loginMsg.className="message error";loginMsg.textContent="Login failed ["+(e?.code||"unknown")+"]: "+(e?.message||String(e));}
-   loginBtn.disabled=false;
-   loginBtn.textContent="Login";
-  }
- });
-}
+/* Login is handled by the standalone bootstrap at the end of this page. */
 
 console.log("CINEVA Complete Admin System loaded.");
 
@@ -2390,6 +2353,33 @@ $("cfgSave").onclick=async()=>{
 </script>
 
 
+
+
+<script type="module">
+/* Standalone login bootstrap: works even if another admin feature throws an error. */
+(async function(){
+ const cfg={apiKey:"AIzaSyAfXYOK6euvJHY5jpbl3y0JYxw_OnjC2wc",authDomain:"cineva-admin.firebaseapp.com",projectId:"cineva-admin",storageBucket:"cineva-admin.firebasestorage.app",messagingSenderId:"496503778333",appId:"1:496503778333:web:58d1e90513d2c9fa3baaf4"};
+ try{
+  const [{getApps,initializeApp},{getAuth,signInWithEmailAndPassword}]=await Promise.all([import("https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js"),import("https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js")]);
+  const app=getApps().length?getApps()[0]:initializeApp(cfg),auth=getAuth(app),btn=document.getElementById("loginBtn"),msg=document.getElementById("loginMsg");
+  if(!btn)return;
+  btn.onclick=async function(){
+   const email=(document.getElementById("email")?.value||"").trim(),password=document.getElementById("password")?.value||"";
+   if(!email||!password){if(msg){msg.className="message error";msg.textContent="Enter admin email and password.";}return;}
+   btn.disabled=true;btn.textContent="Logging in…";if(msg){msg.className="message";msg.textContent="Connecting to Firebase…";}
+   try{
+    const cred=await signInWithEmailAndPassword(auth,email,password);
+    if(msg){msg.className="message success";msg.textContent="Login successful. Opening Admin…";}
+    document.getElementById("login").style.display="none";document.getElementById("panel").style.display="block";document.getElementById("logout").style.display="block";
+    const status=document.getElementById("adminStatus");if(status)status.textContent="● "+(cred.user.email||"Admin")+" • "+(cred.user.emailVerified?"Verified":"Email not verified");
+    document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById("dashboard")?.classList.add("active");
+    if(typeof window.loadAll==="function")window.loadAll().catch(console.error);else if(typeof window.loadDashboard==="function")window.loadDashboard().catch(console.error);
+   }catch(e){console.error("CINEVA login failed:",e);if(msg){msg.className="message error";msg.textContent="Login failed ["+(e?.code||"unknown")+"]: "+(e?.message||String(e));}}
+   finally{btn.disabled=false;btn.textContent="Login";}
+  };
+ }catch(e){console.error("CINEVA login bootstrap failed:",e);const msg=document.getElementById("loginMsg");if(msg){msg.className="message error";msg.textContent="Firebase login could not start: "+(e?.message||String(e));}}
+})();
+</script>
 
 
 </body>
