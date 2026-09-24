@@ -1780,7 +1780,7 @@ async function loadUsers(){
     }
 }
 
-$("refreshUsers").onclick=loadUsers;
+if($("refreshUsers")) $("refreshUsers").onclick=loadUsers;
 
 
 /* CUSTOMER SERVICE */
