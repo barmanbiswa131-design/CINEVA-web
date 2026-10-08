@@ -31,6 +31,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
 
 public class MainActivity extends Activity {
 
@@ -50,6 +58,8 @@ public class MainActivity extends Activity {
     String currentScreen = "home";
 
     LinearLayout root;
+    AdView bannerAd;
+    InterstitialAd interstitialAd;
     FirebaseFirestore db;
     FirebaseAuth auth;
     GoogleSignInClient googleClient;
@@ -91,6 +101,12 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+
+        MobileAds.initialize(this, status -> loadInterstitialAd());
+        bannerAd = new AdView(this);
+        bannerAd.setAdSize(AdSize.BANNER);
+        bannerAd.setAdUnitId("ca-app-pub-3940256099942544/9214589741");
+        bannerAd.loadAd(new AdRequest.Builder().build());
 
         getWindow().setStatusBarColor(BG);
         getWindow().setNavigationBarColor(BG);
@@ -1083,6 +1099,55 @@ public class MainActivity extends Activity {
         showLogin();
     }
 
+
+    // Google demo ad units are used until the owner creates an AdMob account.
+    // These test ads never generate earnings.
+    void loadInterstitialAd() {
+        InterstitialAd.load(
+            this,
+            "ca-app-pub-3940256099942544/1033173712",
+            new AdRequest.Builder().build(),
+            new InterstitialAdLoadCallback() {
+                @Override
+                public void onAdLoaded(InterstitialAd ad) {
+                    interstitialAd = ad;
+                }
+
+                @Override
+                public void onAdFailedToLoad(LoadAdError error) {
+                    interstitialAd = null;
+                }
+            }
+        );
+    }
+
+    void showInterstitialThen(Runnable continueAction) {
+        InterstitialAd ad = interstitialAd;
+        if (ad == null) {
+            continueAction.run();
+            loadInterstitialAd();
+            return;
+        }
+
+        interstitialAd = null;
+        ad.setFullScreenContentCallback(new FullScreenContentCallback() {
+            @Override
+            public void onAdDismissedFullScreenContent() {
+                loadInterstitialAd();
+                continueAction.run();
+            }
+
+            @Override
+            public void onAdFailedToShowFullScreenContent(
+                com.google.android.gms.ads.AdError error
+            ) {
+                loadInterstitialAd();
+                continueAction.run();
+            }
+        });
+        ad.show(this);
+    }
+
     void base() {
 
         root = new LinearLayout(this);
@@ -1097,6 +1162,16 @@ public class MainActivity extends Activity {
                 -1,0,1
             )
         );
+
+        if (bannerAd != null) {
+            if (bannerAd.getParent() instanceof ViewGroup) {
+                ((ViewGroup) bannerAd.getParent()).removeView(bannerAd);
+            }
+            root.addView(
+                bannerAd,
+                new LinearLayout.LayoutParams(-1, -2)
+            );
+        }
 
         root.addView(bottom());
 
@@ -1949,9 +2024,13 @@ public class MainActivity extends Activity {
                     .setItems(options,(dialog,which) -> {
 
                         if(which == 0) {
-                            playVideo(title, videoUrl, false);
+                            showInterstitialThen(() ->
+                                playVideo(title, videoUrl, false)
+                            );
                         } else {
-                            playVideo(title, trailerUrl, true);
+                            showInterstitialThen(() ->
+                                playVideo(title, trailerUrl, true)
+                            );
                         }
 
                     })
