@@ -6,6 +6,9 @@
         android:maxSdkVersion="32" />
 
     <application
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713" />
         android:theme="@style/AppTheme"
         android:label="CINEVA"
         android:icon="@mipmap/ic_launcher"
