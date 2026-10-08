@@ -1,4 +1,4 @@
-name: Build CINEVA Android APK
+name: Build CINEVA Android Test APK
 
 on:
   workflow_dispatch:
@@ -11,13 +11,11 @@ on:
       - ".github/workflows/android.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
-    env:
-      HAS_RELEASE_KEY: ${{ secrets.CINEVA_KEYSTORE_BASE64 != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,52 +31,11 @@ jobs:
         with:
           gradle-version: "8.7"
 
-      - name: Prepare persistent signing key
-        if: ${{ env.HAS_RELEASE_KEY == 'true' }}
-        env:
-          CINEVA_KEYSTORE_BASE64: ${{ secrets.CINEVA_KEYSTORE_BASE64 }}
-        run: |
-          echo "$CINEVA_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/cineva-release.jks"
-
-      - name: Build signed CINEVA release APK
-        if: ${{ secrets.CINEVA_KEYSTORE_BASE64 != '' }}
-        env:
-          CINEVA_KEYSTORE_FILE: ${{ runner.temp }}/cineva-release.jks
-          CINEVA_KEYSTORE_PASSWORD: ${{ secrets.CINEVA_KEYSTORE_PASSWORD }}
-          CINEVA_KEY_ALIAS: ${{ secrets.CINEVA_KEY_ALIAS }}
-          CINEVA_KEY_PASSWORD: ${{ secrets.CINEVA_KEY_PASSWORD }}
-        run: |
-          test -n "$CINEVA_KEYSTORE_PASSWORD" || { echo "CINEVA_KEYSTORE_PASSWORD secret is missing."; exit 1; }
-          test -n "$CINEVA_KEY_ALIAS" || { echo "CINEVA_KEY_ALIAS secret is missing."; exit 1; }
-          test -n "$CINEVA_KEY_PASSWORD" || { echo "CINEVA_KEY_PASSWORD secret is missing."; exit 1; }
-          gradle :app:assembleRelease
-
-      - name: Build debug APK for testing when release key is not configured
-        if: ${{ env.HAS_RELEASE_KEY != 'true' }}
+      - name: Build CINEVA debug APK with AdMob test ads
         run: gradle :app:assembleDebug
 
-      - name: Publish signed release APK artifact
-        if: ${{ secrets.CINEVA_KEYSTORE_BASE64 != '' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: CINEVA-APK-Release
-          path: app/build/outputs/apk/release/app-release.apk
-
-      - name: Publish debug test APK artifact
-        if: ${{ secrets.CINEVA_KEYSTORE_BASE64 == '' }}
+      - name: Publish test APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: CINEVA-APK-Test-Only
           path: app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Copy APK for GitHub Pages
-        if: ${{ secrets.CINEVA_KEYSTORE_BASE64 != '' }}
-        run: cp app/build/outputs/apk/release/app-release.apk web/CINEVA.apk
-
-      - name: Commit APK
-        if: ${{ secrets.CINEVA_KEYSTORE_BASE64 != '' }}
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: "web/CINEVA.apk"
-          message: "Build signed CINEVA Android APK"
-          default_author: github_actions
